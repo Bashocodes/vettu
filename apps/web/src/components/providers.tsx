@@ -18,7 +18,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // `useSingleEndpoint` here — the two settings have to agree.
   // LiveVoiceProvider sits ABOVE the popup so minimising the overlay never ends a LIVE call.
   return (
-    <CopilotKitProvider runtimeUrl="/api/copilotkit" enableInspector={false}>
+    <CopilotKitProvider
+      runtimeUrl="/api/copilotkit"
+      enableInspector={false}
+      onError={(event) => {
+        // A runtime-info fetch that lands while the dev server recompiles or restarts fails once and
+        // CopilotKit retries; logging it as an error would raise a false "Issue" badge. Real errors stay errors.
+        if (event.code === "runtime_info_fetch_failed") console.warn(`[CopilotKit] ${event.code} (retrying)`);
+        else console.error(`[CopilotKit] Error (${event.code}):`, event.error, event.context ?? {});
+      }}
+    >
       <LiveVoiceProvider>{children}</LiveVoiceProvider>
     </CopilotKitProvider>
   );
