@@ -36,6 +36,7 @@ import {
   worldCounts,
   type WorldCounts,
 } from "@/lib/tool-run";
+import { CO_CARD_MAX, forSection, toCardRow } from "@/components/change-orders/change-order-logic";
 
 export const VETTU_CONTEXT_RULES = [
   "VETTU film board: the open film, its sections (§NN codes), the open section's cards and its edit timeline (EDL), as the user sees them now.",
@@ -462,27 +463,26 @@ export function VettuControl(props: VettuOverlayProps) {
 
   useVettuTool(
     "refresh_change_orders",
-    async () => {
+    async ({ section }) => {
       const filmId = latest.current.filmId;
       if (!filmId) return fail(NO_FILM);
+      let scope: BoardSection | null = null;
+      if (section) {
+        const t = targetOf(latest.current, section);
+        if (!t.ok) return fail(t.message);
+        scope = t.section;
+      }
       const { changeOrders } = await api.changeOrders.list(filmId);
-      const rows = changeOrders.slice(0, 12).map((co) => ({
-        id: co.id,
-        cutId: co.cutId,
-        version: co.version,
-        kind: co.kind,
-        text: co.text == null ? null : clip(co.text, 300),
-        reviewer: clip(co.reviewer.name, 80),
-        taskId: co.task?.id ?? null,
-        taskUrl: co.task?.url ?? null,
-        taskStatus: co.taskStatus,
-        createdAt: co.createdAt,
-      }));
-      const n = changeOrders.length;
-      return ok(n ? `${n} change order${n === 1 ? "" : "s"} from the review thread` : "No change orders yet.", {
-        total: n,
-        changeOrders: rows,
-      });
+      const picked = forSection(changeOrders, scope?.id ?? null);
+      const rows = picked.slice(0, CO_CARD_MAX).map(toCardRow);
+      const n = picked.length;
+      const where = scope ? ` for ${sectionLabel(scope)}` : "";
+      return ok(
+        n
+          ? `${n} change order${n === 1 ? "" : "s"}${where} from the review thread`
+          : `No change orders${where} yet.`,
+        { total: n, section: scope?.id ?? null, changeOrders: rows },
+      );
     },
     deps,
   );

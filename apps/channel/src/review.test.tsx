@@ -629,4 +629,95 @@ describe("VETTU review thread", () => {
       await h.stop();
     }
   });
+
+  it(
+    "a reviewer known only by a Slack id is never named; a named reviewer is",
+    { timeout: 10_000 },
+    async () => {
+      const h = await harness([cut(1), cut(2)]);
+      try {
+        await h.gateway.deliver(h.first);
+        const [one, two] = h.cards();
+        assert.ok(one && two, "one card per queued cut");
+        // No displayName at all: the provider gave only the platform id.
+        const slackIdOnly = { externalUserId: "U0C0GCGDCFR", kind: "human" as const };
+
+        await h.deliver("review_click_changes_id", click(actionId(one, "Request changes")), slackIdOnly);
+        const changes = JSON.stringify(h.replaced().at(-1));
+        assert.match(changes, /Changes requested/);
+        assert.ok(!changes.includes("Changes requested by"), changes);
+        assert.ok(!changes.includes("U0C0GCGDCFR"), "no raw Slack id on the card");
+        assert.deepEqual((h.kv.get(h.stateKey) as ReviewThreadState).decided?.[CUT_ONE], {
+          kind: "changes",
+          reviewer: "",
+        });
+
+        await h.deliver("review_reply_note_id", text("Hold the wide shot"), slackIdOnly);
+        assert.equal(h.vettu.state.orders.length, 1);
+        assert.deepEqual(h.vettu.state.orders[0].reviewer, { id: "U0C0GCGDCFR", name: "" });
+
+        await h.deliver("review_click_approve_named", click(actionId(two, "Approve")), {
+          externalUserId: "U0C0GCGDCFS",
+          kind: "human",
+          displayName: "Grace",
+        });
+        assert.match(JSON.stringify(h.replaced().at(-1)), /Approved by Grace/);
+        assert.deepEqual(h.vettu.state.orders[1].reviewer, { id: "U0C0GCGDCFS", name: "Grace" });
+      } finally {
+        await h.stop();
+      }
+    },
+  );
+
+  it(
+    "the kickoff card is posted once per thread, and every mention still pulls the queue",
+    { timeout: 10_000 },
+    async () => {
+      const h = await harness([cut(1)]);
+      try {
+        await h.gateway.deliver(h.first);
+        assert.equal(h.kickoffs().length, 1);
+        assert.equal(h.vettu.state.queueReads, 1);
+        assert.equal((h.kv.get(h.stateKey) as ReviewThreadState).kickoffPosted, true);
+
+        // Another cut is approved, and the same thread is mentioned again.
+        h.vettu.state.queue.push(cut(2));
+        await h.deliver("review_mention_again", text("<@U0VETTU> next cut", { mentioned: true }));
+        assert.equal(h.vettu.state.queueReads, 2, "the second mention still pulls the queue");
+        assert.equal(h.cards().length, 2, "the newly queued cut is posted");
+        assert.deepEqual(h.vettu.state.posted, [CUT_ONE, CUT_TWO]);
+        assert.equal(h.kickoffs().length, 1, "no second kickoff card in the same thread");
+
+        // A subscribed reply pulls the queue too, still without a kickoff card.
+        await h.deliver("review_reply_after", text("looks right"));
+        assert.equal(h.vettu.state.queueReads, 3);
+        assert.equal(h.kickoffs().length, 1);
+
+        // A brand-new thread still gets its own kickoff card.
+        await h.gateway.deliver(
+          preparedDelivery("review_new_thread", "slack", text("<@U0VETTU> review", { mentioned: true })),
+        );
+        assert.equal(h.kickoffs().length, 2, "a new thread gets one kickoff card");
+      } finally {
+        await h.stop();
+      }
+    },
+  );
+
+  it(
+    "a thread started by the welcome card keeps that one kickoff card on a later mention",
+    { timeout: 10_000 },
+    async () => {
+      const h = await harness([], { start: "welcome" });
+      try {
+        await h.gateway.deliver(h.first);
+        assert.equal(h.kickoffs().length, 1);
+        await h.deliver("review_mention_later", text("<@U0VETTU> anything new?", { mentioned: true }));
+        assert.equal(h.vettu.state.queueReads, 1, "the mention pulls the queue");
+        assert.equal(h.kickoffs().length, 1, "no second kickoff card");
+      } finally {
+        await h.stop();
+      }
+    },
+  );
 });

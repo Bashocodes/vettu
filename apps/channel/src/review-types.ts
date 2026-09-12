@@ -86,6 +86,8 @@ export interface ReviewThreadState {
    * props would take over the first card's buttons.
    */
   carded?: Record<string, string>;
+  /** This thread already has its kickoff card: a later mention or welcome posts no second one. */
+  kickoffPosted?: boolean;
 }
 
 export interface ReviewDecision {
@@ -105,4 +107,5 @@ export const reviewThreadState = z.object({
   awaitingTitle: z.string().optional(),
   decided: z.record(z.string(), reviewDecision).optional(),
   carded: z.record(z.string(), z.string()).optional(),
+  kickoffPosted: z.boolean().optional(),
 });

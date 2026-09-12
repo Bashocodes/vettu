@@ -36,6 +36,7 @@ import {
   approvedCard,
   changesRecordedCard,
   notesRequestedCard,
+  reviewerName,
 } from "./components";
 import {
   reviewThreadState,
@@ -341,8 +342,9 @@ export const { ReviewCard, KickoffCard } = reviewCards();
 
 /**
  * Wire the review thread onto a Channel: mention → subscribe → pull the queue →
- * kickoff card; human replies → file an awaited change note, else (subscribed
- * threads only) pull the queue and let the agent answer; welcome → kickoff card.
+ * kickoff card (once per thread); human replies → file an awaited change note,
+ * else (subscribed threads only) pull the queue and let the agent answer;
+ * welcome → kickoff card (once per thread).
  */
 export function registerReviewThread(channel: Channel, deps: ReviewDeps = defaultDeps): void {
   const { KickoffCard } = reviewCards(deps);
@@ -353,7 +355,8 @@ export function registerReviewThread(channel: Channel, deps: ReviewDeps = defaul
     // the bot must be filed here too, or it would be silently dropped.
     if (isHumanCreated(message) && (await fileAwaitedNote(thread, message, deps))) return;
     await flushReviewQueue(thread, deps, { announceErrors: true });
-    await thread.post(<KickoffCard />);
+    // Every mention pulls the queue; only a thread without one gets the kickoff card.
+    if (await claimKickoff(thread)) await thread.post(<KickoffCard />);
   });
 
   // Non-mentioned turns only ever reach onMessage. Bots (including our own
@@ -371,7 +374,7 @@ export function registerReviewThread(channel: Channel, deps: ReviewDeps = defaul
   });
 
   channel.onWelcome(async ({ thread }) => {
-    await thread.post(<KickoffCard />);
+    if (await claimKickoff(thread)) await thread.post(<KickoffCard />);
   });
 }
 
@@ -464,7 +467,26 @@ function withoutAwaiting(prev: ReviewThreadState): ReviewThreadState {
   const next: ReviewThreadState = {};
   if (prev.decided) next.decided = prev.decided;
   if (prev.carded) next.carded = prev.carded;
+  if (prev.kickoffPosted) next.kickoffPosted = prev.kickoffPosted;
   return next;
+}
+
+/**
+ * Claim this thread's one kickoff card: true when it has none yet. The check and
+ * the write run in the state queue, so two quick mentions cannot both post one.
+ * Unreadable state posts the card as before, so no thread is left without one.
+ */
+async function claimKickoff(thread: ReviewStateThread): Promise<boolean> {
+  const seen: { posted: boolean | null } = { posted: null };
+  try {
+    await updateState(thread, (prev) => {
+      seen.posted = prev.kickoffPosted === true;
+      return seen.posted ? prev : { ...prev, kickoffPosted: true };
+    });
+  } catch {
+    console.warn("[vettu-review] could not note the kickoff card in thread state");
+  }
+  return seen.posted !== true;
 }
 
 /** The settled card for a decision made earlier, on another card for the same cut. */
@@ -553,9 +575,10 @@ function isHumanCreated(message: ChannelMessage): boolean {
   return message.actor.kind === "human" && message.operation.kind === "created";
 }
 
+/** The platform id, and a name only when the provider gave a real one: never the raw id as the name. */
 function reviewerOf(actor: ProviderActor): { id: string; name: string } {
   const id = (actor.id ?? "").slice(0, 200);
-  const name = (actor.name?.trim() || actor.id || "a reviewer").slice(0, 200);
+  const name = (reviewerName(actor.name) || reviewerName(actor.handle)).slice(0, 200);
   return { id, name };
 }
 

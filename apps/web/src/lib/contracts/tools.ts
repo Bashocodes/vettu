@@ -139,8 +139,9 @@ export const VETTU_TOOLS = {
     parameters: z.object({ brief: z.string().trim().min(3).max(2000), section }),
   },
   refresh_change_orders: {
-    description: "Read change orders that reviewers filed from the Slack review thread.",
-    parameters: z.object({}),
+    description:
+      "List change orders filed from the Slack review thread, for a section, as cards; each carries its Ambiguous task. Omit section for every section.",
+    parameters: z.object({ section }),
   },
 } as const satisfies Record<string, { description: string; parameters: z.ZodObject }>;
 

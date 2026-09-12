@@ -13,6 +13,7 @@ import type { Letter } from "@/lib/contracts/film";
 import type { EditDiff } from "@/lib/board-format";
 import { sectionNumber } from "@/lib/board-format";
 import { JobStrip } from "@/components/jobs/job-strip";
+import { ChangeOrderStrip } from "@/components/change-orders/change-order-strip";
 import { Badge } from "./badge";
 import { CardGrid, PlanRows, SoundRows } from "./card";
 import type { LightboxImage } from "./lightbox";
@@ -390,6 +391,7 @@ export function SectionRow({
       ) : null}
 
       {active ? <JobStrip filmId={filmId} section={section.id} /> : null}
+      {active ? <ChangeOrderStrip filmId={filmId} section={section.id} /> : null}
 
       {open && tab ? <div className="v-tabpane">{pane(tab)}</div> : null}
       {open && !tab ? (

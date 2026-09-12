@@ -45,7 +45,7 @@ export function createPostLatestCutTool(deps?: ReviewDeps) {
 /**
  * The path that still works after a listener restart: old cards' buttons are
  * bound in-process and a click on them is silently dropped, but a fresh mention
- * posts a new kickoff card and a subscribed reply reruns the agent, which can
- * call this tool.
+ * pulls the queue again (the thread keeps its one kickoff card) and a subscribed
+ * reply reruns the agent, which can call this tool.
  */
 export const postLatestCut = createPostLatestCutTool();

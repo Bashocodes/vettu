@@ -615,3 +615,69 @@ button.vettu-pill[data-slot="chat-toggle-button"]:hover {
     animation: none;
   }
 }
+
+/* ── the chat input, send, suggestions (hooks = the kit's data-testid) ───────
+   The kit paints the input box cpk:bg-white and a #0007 placeholder whatever the tokens say,
+   and the send button black. Unlayered rules here beat those utilities. Borders are drawn as
+   inset shadows so no box changes size (no layout shift). */
+
+:root [data-copilotkit] [data-testid="copilot-chat-input"] {
+  background-color: var(--v-surf2, #1f1e1c);
+  box-shadow: inset 0 0 0 1px var(--v-line2, #3a3733);
+}
+
+:root [data-copilotkit] [data-testid="copilot-chat-input"]:focus-within {
+  box-shadow: inset 0 0 0 1px var(--v-green, #35d492);
+}
+
+:root [data-copilotkit] [data-testid="copilot-chat-textarea"] {
+  color: var(--v-ink, #ece9e3);
+  caret-color: var(--v-green, #35d492);
+}
+
+:root [data-copilotkit] [data-testid="copilot-chat-textarea"]::placeholder {
+  color: var(--v-ink2, #b3afa6);
+  opacity: 1;
+}
+
+:root [data-copilotkit] [data-testid="copilot-send-button"] {
+  background-color: var(--v-green, #35d492);
+  color: var(--v-bg, #100f0e);
+}
+
+:root [data-copilotkit] [data-testid="copilot-send-button"]:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+:root [data-copilotkit] [data-testid="copilot-send-button"]:disabled {
+  background-color: var(--v-surf3, #2a2826);
+  color: var(--v-ink2, #b3afa6);
+  box-shadow: inset 0 0 0 1px var(--v-line2, #3a3733);
+  opacity: 0.6;
+}
+
+:root [data-copilotkit] [data-testid="copilot-add-menu-button"] {
+  color: var(--v-ink2, #b3afa6);
+}
+
+:root [data-copilotkit] [data-testid="copilot-add-menu-button"]:hover:not(:disabled) {
+  background-color: var(--v-surf3, #2a2826);
+  color: var(--v-ink, #ece9e3);
+}
+
+:root [data-copilotkit] [data-testid="copilot-suggestion"] {
+  background-color: var(--v-surf2, #1f1e1c);
+  border-color: var(--v-line2, #3a3733);
+  color: var(--v-ink, #ece9e3);
+}
+
+:root [data-copilotkit] [data-testid="copilot-suggestion"]:hover {
+  background-color: var(--v-surf3, #2a2826);
+  border-color: var(--v-ink3, #8a867d);
+}
+
+:root [data-copilotkit] [data-testid="copilot-scroll-to-bottom"] {
+  background-color: var(--v-surf2, #1f1e1c);
+  border-color: var(--v-line2, #3a3733);
+  color: var(--v-ink, #ece9e3);
+}

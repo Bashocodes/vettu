@@ -33,6 +33,7 @@ import {
   secsText,
   sectionLabel,
 } from "@/lib/tool-run";
+import { kindLabel, kindTone, readCardRows, taskLine, timeText } from "@/components/change-orders/change-order-logic";
 
 type ToolStatus = "inProgress" | "executing" | "complete";
 
@@ -290,36 +291,6 @@ function JobPoll({ jobId, tool, title, label }: { jobId: string; tool: JobTool; 
 
 // ── change orders ────────────────────────────────────────────────────────────
 
-interface ChangeOrderRow {
-  id: string;
-  kind: string;
-  text: string | null;
-  reviewer: string;
-  version: number | null;
-  taskId: string | null;
-  taskUrl: string | null;
-  taskStatus: string | null;
-}
-
-function readChangeOrders(data: unknown): { rows: ChangeOrderRow[]; total: number } {
-  const d = data && typeof data === "object" ? (data as Record<string, unknown>) : {};
-  const list = Array.isArray(d.changeOrders) ? d.changeOrders : [];
-  const str = (v: unknown) => (typeof v === "string" ? v : null);
-  const rows = list
-    .filter((x): x is Record<string, unknown> => !!x && typeof x === "object")
-    .map((x, i) => ({
-      id: str(x.id) ?? `row-${i}`,
-      kind: str(x.kind) ?? "changes",
-      text: str(x.text),
-      reviewer: str(x.reviewer) ?? "a reviewer",
-      version: typeof x.version === "number" ? x.version : null,
-      taskId: str(x.taskId),
-      taskUrl: str(x.taskUrl),
-      taskStatus: str(x.taskStatus),
-    }));
-  return { rows, total: typeof d.total === "number" ? d.total : rows.length };
-}
-
 function ChangeOrdersCard({ status, result }: { status: ToolStatus; result: string | undefined }) {
   if (status !== "complete") {
     return (
@@ -340,43 +311,57 @@ function ChangeOrdersCard({ status, result }: { status: ToolStatus; result: stri
       </article>
     );
   }
-  const { rows, total } = readChangeOrders(parsed.data);
-  return (
-    <article className="vx-card" data-vx="change-orders">
-      <div className="vx-row">
+  const { rows } = readCardRows(parsed.data);
+  if (!rows.length) {
+    return (
+      <article className="vx-card" data-vx="change-orders">
         <h4>CHANGE ORDERS</h4>
-        <span className="vx-chip">{total}</span>
-      </div>
-      {rows.length ? (
-        <ul className="vx-list">
-          {rows.map((row) => (
-            <li key={row.id}>
-              <div className="vx-row">
-                <strong>{row.reviewer}</strong>
-                <span className="vx-chip" data-tone={row.kind === "approve" ? "ok" : "busy"}>
-                  {row.kind === "approve" ? "approved" : "changes"}
-                </span>
-                {row.version != null ? <span className="vx-mono vx-dim">v{row.version}</span> : null}
-              </div>
-              {row.text ? <p className="vx-text">{row.text}</p> : null}
-              <p className="vx-mono vx-dim">
-                {row.taskId ? `Ambiguous task ${row.taskId}` : `No Ambiguous task${row.taskStatus ? ` (${row.taskStatus})` : ""}`}
-                {row.taskId && isWebUrl(row.taskUrl) ? (
-                  <>
-                    {" · "}
-                    <a className="vx-link" href={row.taskUrl} target="_blank" rel="noreferrer">
-                      open
-                    </a>
-                  </>
-                ) : null}
-              </p>
-            </li>
-          ))}
-        </ul>
-      ) : (
         <p className="vx-text vx-dim">{parsed.message}</p>
-      )}
-    </article>
+      </article>
+    );
+  }
+  return (
+    <div data-vx="change-orders" style={{ display: "grid", gap: 8 }}>
+      {rows.map((row) => {
+        const task = taskLine({
+          task: row.taskId ? { id: row.taskId, url: row.taskUrl } : null,
+          taskStatus: row.taskStatus,
+          error: row.taskError,
+        });
+        const time = timeText(row.createdAt);
+        return (
+          <article key={row.id} className="vx-card" data-vx="change-order" data-kind={row.kind}>
+            <div className="vx-row">
+              <span className="vx-chip" data-tone={kindTone(row.kind)}>
+                {kindLabel(row.kind)}
+              </span>
+              {row.version != null ? <span className="vx-mono vx-dim">v{row.version}</span> : null}
+              {time && row.createdAt ? (
+                <time className="vx-mono vx-dim" dateTime={row.createdAt}>
+                  {time}
+                </time>
+              ) : null}
+              {row.reviewer ? <strong>{row.reviewer}</strong> : null}
+            </div>
+            {row.text ? <p className="vx-text">{row.text}</p> : null}
+            <p className="vx-mono vx-dim">
+              {task.href ? (
+                <a className="vx-link" href={task.href} target="_blank" rel="noreferrer">
+                  {task.text}
+                </a>
+              ) : (
+                task.text
+              )}
+            </p>
+            {task.error ? (
+              <p className="vx-err" role="alert">
+                {task.error}
+              </p>
+            ) : null}
+          </article>
+        );
+      })}
+    </div>
   );
 }
 

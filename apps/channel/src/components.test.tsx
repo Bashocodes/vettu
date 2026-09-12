@@ -8,7 +8,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { renderToIR } from "@copilotkit/channels";
-import { ACCENT, approvedCard, changesRecordedCard, notesRequestedCard } from "./components";
+import { ACCENT, approvedCard, changesRecordedCard, notesRequestedCard, reviewerName } from "./components";
 import { reviewCards } from "./review";
 import { createWebClient } from "./web";
 
@@ -65,6 +65,24 @@ describe("decision cards", () => {
     assert.ok(!out.includes("Reply in this thread"));
     assert.ok(out.includes(ACCENT.changes));
     assert.ok(!out.includes("Approve"), "a settled card carries no buttons");
+  });
+
+  it("a reviewer with no name, or only a Slack id, is not named", async () => {
+    const byId = await render(changesRecordedCard({ title: "T", version: 2, reviewer: "U0C0GCGDCFR" }));
+    assert.ok(byId.includes("Changes requested"));
+    assert.ok(!byId.includes("requested by"));
+    assert.ok(!byId.includes("U0C0GCGDCFR"), "no raw Slack id on a card");
+    const unnamed = await render(approvedCard({ title: "T", version: 2, reviewer: "" }));
+    assert.ok(unnamed.includes("Approved"));
+    assert.ok(!unnamed.includes("Approved by"));
+  });
+
+  it("reviewerName keeps real names and drops platform ids", () => {
+    assert.equal(reviewerName(" Ada "), "Ada");
+    assert.equal(reviewerName("U0C0GCGDCFR"), "");
+    assert.equal(reviewerName("W012ABCDEF"), "");
+    assert.equal(reviewerName("B0VETTUBOT1"), "");
+    assert.equal(reviewerName(undefined), "");
   });
 });
 

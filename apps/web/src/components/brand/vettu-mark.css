@@ -1,0 +1,168 @@
+/*
+ * VETTU mark — the one-shot intro only (board draw → word rise → pivot pop → edge draw → blade lift →
+ * final knock at ~2.2 s), fill-mode both, then it rests on the still mark. No loops.
+ * Every class and keyframe is vm-prefixed so nothing global touches the mark and it touches nothing.
+ */
+.vm-logo {
+  position: relative;
+  display: block;
+  flex: none;
+  /* the measured slot of the old text wordmark, so no § chip moves */
+  width: 72.015625px;
+  height: 40px;
+  overflow: visible;
+  text-indent: 0;
+  line-height: 0;
+  letter-spacing: 0;
+}
+/* viewBox stays 0 0 512 512 (transform origins are in those units); the box crops to x 68–481, y 95–408 */
+.vm-logo > svg {
+  position: absolute;
+  left: -8.69px;
+  top: -12.141px;
+  width: 65.431px;
+  height: 65.431px;
+  display: block;
+  pointer-events: none;
+}
+.vm-logo .vm-blade,
+.vm-logo .vm-mark,
+.vm-logo .vm-ticks {
+  transform-box: view-box;
+}
+.vm-logo .vm-blade {
+  transform-origin: 97.25px 261.8px;
+  transform: rotate(-30deg);
+}
+.vm-logo .vm-ticks {
+  transform-origin: 437.25px 273.8px;
+}
+.vm-logo .vm-grow {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.vm-logo.intro .vm-board {
+  stroke-dasharray: 1 2;
+  animation: vm-draw 0.7s cubic-bezier(0.6, 0, 0.2, 1) both;
+}
+.vm-logo.intro .vm-word {
+  animation: vm-rise 0.5s 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.vm-logo.intro .vm-pivot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vm-pop 0.45s 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.vm-logo.intro .vm-edge {
+  stroke-dasharray: 1 2;
+  animation: vm-draw 0.5s 0.85s cubic-bezier(0.6, 0, 0.2, 1) both;
+}
+.vm-logo.intro .vm-blade {
+  animation: vm-lift 1.4s 1.25s both;
+}
+.vm-logo.intro .vm-grow {
+  animation: vm-grow1 0.48s 2.2s both;
+}
+.vm-logo.intro .vm-ticks {
+  animation: vm-tick1 0.55s 2.18s both;
+}
+.vm-logo.intro .vm-mark {
+  animation: vm-knock1 0.4s 2.2s both;
+}
+@keyframes vm-draw {
+  from {
+    stroke-dashoffset: 1.01;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes vm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vm-pop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes vm-lift {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  40%,
+  55% {
+    transform: rotate(-30deg);
+    animation-timing-function: cubic-bezier(0.62, 0, 1, 0.45);
+  }
+  68% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.35, 1);
+  }
+  76% {
+    transform: rotate(-5deg);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.5);
+  }
+  82%,
+  90% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+  }
+  100% {
+    transform: rotate(-30deg);
+  }
+}
+@keyframes vm-grow1 {
+  0% {
+    transform: scale(1);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  45%,
+  55% {
+    transform: scale(1.07);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes vm-tick1 {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+@keyframes vm-knock1 {
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(3px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vm-logo * {
+    animation: none !important;
+  }
+}

@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import type { BoardSection } from "@/lib/contracts/board-view";
 import type { FilmSummary } from "@/lib/contracts/film";
+import { VettuMark } from "@/components/brand/VettuMark";
 
 function failText(error: unknown): string {
   return error instanceof ApiError ? error.message : "That did not work. Try again.";
@@ -44,7 +45,7 @@ export function FilmBar({ page, filmId, filmName, sections, importAvailable, rin
     <>
       <nav className="v-bar" data-vettu="filmbar" aria-label="film bar">
         <Link className="v-brand" href={`/${q}`} aria-label="VETTU board">
-          VETTU
+          <VettuMark />
         </Link>
         <span className="v-hair" aria-hidden="true" />
         <button
