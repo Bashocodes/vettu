@@ -17,6 +17,9 @@ import { MAX_DIRECTOR_JOBS } from "./fallback";
 
 export const DEFAULT_DIRECTOR_MODEL = "claude-opus-5";
 export const DIRECTOR_MAX_STEPS = 8;
+/** Spend guards per Director run: Kling clips are slow and paid; sound effects bill per second. */
+export const MAX_DIRECTOR_ANIMATES = 1;
+export const MAX_DIRECTOR_SOUND_SECS = 10;
 export const DIRECTOR_TOOL_NAMES = ["list_shots", "animate_insert", "add_sound"] as const;
 
 export const DIRECTOR_SYSTEM = [
@@ -92,12 +95,16 @@ export function directorTools(opts: {
 }): ToolSet {
   const max = opts.maxJobs ?? MAX_DIRECTOR_JOBS;
   let started = 0;
+  let animates = 0;
 
   const queue = async (name: QueuedJob["tool"], request: unknown): Promise<DirectorToolOutput> => {
     if (started >= max) return { error: `Plan at most ${max} jobs; this one was not queued.` };
+    if (name === "animate_insert" && animates >= MAX_DIRECTOR_ANIMATES)
+      return { error: `One Kling clip per Director run; this animate_insert was not queued.` };
     try {
       const body = jobCreateBody.parse(request);
       started += 1;
+      if (name === "animate_insert") animates += 1;
       const job = await opts.startJob(body);
       try {
         await opts.onQueued?.({ tool: name, jobId: job.id, status: job.status });
@@ -124,7 +131,13 @@ export function directorTools(opts: {
     add_sound: tool({
       description: VETTU_TOOLS.add_sound.description,
       inputSchema: soundInput,
-      execute: async (input) => queue("add_sound", { kind: "sound", ...opts.target, ...input }),
+      execute: async (input) =>
+        queue("add_sound", {
+          kind: "sound",
+          ...opts.target,
+          ...input,
+          duration: Math.min(input.duration, MAX_DIRECTOR_SOUND_SECS),
+        }),
     }),
   };
 }
