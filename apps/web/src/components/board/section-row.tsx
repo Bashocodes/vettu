@@ -12,6 +12,7 @@ import type { BoardSection, TabName } from "@/lib/contracts/board-view";
 import type { Letter } from "@/lib/contracts/film";
 import type { EditDiff } from "@/lib/board-format";
 import { sectionNumber } from "@/lib/board-format";
+import { JobStrip } from "@/components/jobs/job-strip";
 import { Badge } from "./badge";
 import { CardGrid, PlanRows, SoundRows } from "./card";
 import type { LightboxImage } from "./lightbox";
@@ -387,6 +388,8 @@ export function SectionRow({
           {diff.lastChange ? <span className="v-editlast">{diff.lastChange}</span> : null}
         </div>
       ) : null}
+
+      {active ? <JobStrip filmId={filmId} section={section.id} /> : null}
 
       {open && tab ? <div className="v-tabpane">{pane(tab)}</div> : null}
       {open && !tab ? (
