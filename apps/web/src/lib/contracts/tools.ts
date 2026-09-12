@@ -73,7 +73,8 @@ export const VETTU_TOOLS = {
     parameters: z.object({ shot, section }),
   },
   set_transition: {
-    description: "Set the transition INTO edit entry `index` (1-based position ≥ 1): cut, fade or slideleft, with a duration in seconds.",
+    description:
+      "Set the transition INTO edit entry `index`: a 0-based edit-list index ≥ 1 (1 = the join between the first and second shots, same base as move_shot): cut, fade or slideleft, with a duration in seconds.",
     parameters: z.object({
       index: z.number().int().min(1),
       type: z.enum(["cut", "fade", "slideleft"]),
@@ -101,7 +102,7 @@ export const VETTU_TOOLS = {
   },
   draw_insert: {
     description:
-      "Draw a shot that was never filmed from reference shots, place a push-in placeholder at once, and queue it. Slow; returns a job id.",
+      "OFF in this build: VETTU has no image model. Do not use it for real work — tell the user drawing is off and offer animate_insert from an existing shot instead.",
     parameters: z.object({
       prompt: z.string().trim().min(3).max(1000),
       refShots: z.array(z.string().max(100)).max(16).optional(),
@@ -111,8 +112,17 @@ export const VETTU_TOOLS = {
     }),
   },
   animate_insert: {
-    description: "Animate a drawn insert into a clip (Kling image→video). Slow; returns a job id; the placeholder is swapped when it lands.",
-    parameters: z.object({ insertId: z.string().min(1).max(100), prompt: z.string().trim().max(1000).optional(), section }),
+    description:
+      "Make a new shot with Kling image→video from an existing still or a frame of a shot (fromShot, plus `at` seconds into it), placed after afterShot. A push-in placeholder lands at once and the Kling clip swaps in when it arrives. Or re-animate an existing insert with insertId. Slow; returns a job id — never wait for it.",
+    parameters: z.object({
+      fromShot: shot.optional(),
+      at: z.number().min(0).optional(),
+      insertId: z.string().min(1).max(100).optional(),
+      prompt: z.string().trim().max(1000).optional(),
+      afterShot: z.string().max(100).optional(),
+      secs: z.number().min(1).max(10).optional(),
+      section,
+    }),
   },
   add_sound: {
     description:

@@ -45,7 +45,13 @@ export const jobCreateBody = z.discriminatedUnion("kind", [
     .object({
       kind: z.literal("animate"),
       ...target,
-      insertId: z.string().min(1).max(100),
+      /** A new insert from a shot's still or frame: fromShot (+ `at` seconds into it), placed after afterShot. */
+      fromShot: z.string().min(1).max(100).optional(),
+      at: z.number().min(0).optional(),
+      afterShot: z.string().max(100).optional(),
+      secs: z.number().min(1).max(10).default(5),
+      /** …or re-animate an existing insert. One of fromShot / insertId is required (the server checks). */
+      insertId: z.string().min(1).max(100).optional(),
       prompt: z.string().trim().max(1000).optional(),
     })
     .strict(),

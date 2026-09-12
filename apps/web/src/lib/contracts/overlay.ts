@@ -14,7 +14,7 @@ export interface VettuOverlayProps {
 }
 
 export type LiveState = "unavailable" | "off" | "connecting" | "listening" | "speaking" | "error";
-export type LiveEngine = "gpt-live" | "realtime";
+export type LiveEngine = "elevenlabs" | "gpt-live" | "realtime";
 
 export interface LiveLine {
   id: string; // stable display id — rows are never re-sorted
