@@ -235,11 +235,11 @@ export function applyMove(timeline: Timeline, body: { shot: string; index: numbe
   const t = structuredClone(timeline);
   const from = findEntryIndex(t, body.shot);
   if (body.index < 0 || body.index >= t.edl.length)
-    throw new HttpError(422, `Position ${body.index} is outside the edit (0–${t.edl.length - 1}).`);
+    throw new HttpError(422, `There is no position #${body.index + 1}; the edit has ${t.edl.length} entries.`);
   const [e] = t.edl.splice(from, 1);
   t.edl.splice(body.index, 0, e);
   if (e.change !== "new") e.change = "moved";
-  return touched(t, `moved to ${body.index}`);
+  return touched(t, `moved to #${body.index + 1}`);
 }
 
 export function applyRemove(timeline: Timeline, body: { shot: string }): Timeline {

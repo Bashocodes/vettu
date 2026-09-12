@@ -32,6 +32,7 @@ import {
 } from "./index-cards";
 import { parseFilmState, unreadable } from "./parse-state";
 import { parseWorldPage } from "./world-pages";
+import { withClipPosters } from "./posters";
 
 export const SAAKSHE_NAME = "SAAKSHE";
 /** Imported SAAKSHE = §01–§07 only. Later sections and the parked ones stay out. */
@@ -293,7 +294,7 @@ export async function buildSaakshe(id: string): Promise<Omit<Film, "rev" | "crea
     targetSecs: null,
     letters,
     sections,
-    cards: buildCards(index, rules),
+    cards: await withClipPosters(buildCards(index, rules)),
     sounds: buildSounds(index, rules),
     plans: buildPlans(index, rules),
     notes: [],

@@ -104,7 +104,7 @@ test("mutations: trim edges, refs, move, remove, transition, words", async () =>
   assert.equal(inTrim.lastChange, "trimmed −0.25 s");
   const moved = T.applyMove(t, { shot: "S3", index: 0 });
   assert.deepEqual(moved.edl.map((e) => e.ref), ["S3", "S1", "S2"]);
-  assert.equal(moved.lastChange, "moved to 0");
+  assert.equal(moved.lastChange, "moved to #1");
   const removed = T.applyRemove(t, { shot: "S2" });
   assert.deepEqual(removed.edl.map((e) => e.ref), ["S1", "S3"]);
   assert.equal(removed.lastChange, "removed S2");

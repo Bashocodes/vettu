@@ -70,7 +70,7 @@ test("impossible trims, moves and transitions are refused with a plain 422 reaso
   assert.throws(() => T.applyTrim(t, { shot: "S1", delta: 5 }), refused(422, /^S1: the clip is only 7 s long\.$/));
   assert.throws(() => T.applyTrim(t, { shot: "S1", in: 4 }), refused(422, /^S1: the out point must come after the in point\.$/));
   assert.throws(() => T.applyTrim(t, { shot: "S9", delta: 1 }), refused(422, /^There is no shot S9 in this edit\.$/));
-  assert.throws(() => T.applyMove(t, { shot: "S1", index: 9 }), refused(422, /^Position 9 is outside the edit \(0–2\)\.$/));
+  assert.throws(() => T.applyMove(t, { shot: "S1", index: 9 }), refused(422, /^There is no position #10; the edit has 3 entries\.$/));
   assert.throws(
     () => T.applyTransition(t, { index: 1, type: "fade", dur: 5 }),
     refused(422, /^S1 is shorter than the fade after it \(5 s\)\.$/),
