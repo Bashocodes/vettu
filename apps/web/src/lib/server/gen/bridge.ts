@@ -37,12 +37,13 @@ export function openTimeline(filmId: string, sectionRef: string): Promise<Timeli
   return loadTimeline(filmId, sectionRef);
 }
 
+/** Every generator change (a new insert, a swapped clip, a laid sound) makes the edit a draft again. */
 export function changeTimeline(
   filmId: string,
   sectionId: string,
   change: (t: Timeline) => Timeline,
 ): Promise<Timeline> {
-  return updateTimeline(filmId, sectionId, change);
+  return updateTimeline(filmId, sectionId, (t) => ({ ...change(t), status: "draft" }));
 }
 
 /** Render the 540p preview; a failed preview never fails a generator job. */

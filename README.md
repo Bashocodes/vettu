@@ -1,121 +1,110 @@
 <div align="center">
 
-# Agents, Everywhere Hackathon Starter Kit
+# VETTU
 
-![Agents, Everywhere hackathon — OpenAI, CopilotKit, OpenRouter, Exa, Auth0, and Ambiguous AI](assets/banner.png)
+**வெட்டு — "the cut". An agentic film board for any film.**
 
-**Build an agent that belongs where people already work, talk, and live.**
-
-[Overview](#overview) · [Get started](#get-started) · [Templates](#templates) · [Coding agent](#coding-agent) · [Resources](#resources)
+*Say the cut. Agents make it.*
 
 </div>
 
-## Overview
+VETTU is a film board with an editor that listens. The board shows your film's sections, cards, clips and cues. You
+type — or say — the cut ("hold S3 of §04 half a second longer", "rename §02 to THE BRIDGE") and agents make it: the
+edit changes, a preview renders, the board shows what moved. Slow work runs in the background. Nothing publishes until
+you click **Approve**; then VETTU renders the final cut, records it in Ambiguous and queues it for your Slack review
+thread, where replies come back as change orders.
 
-Build for **[Agents, Everywhere: Bots, Channels, & More](https://aitinkerers.org/hackathons/global/agents-everywhere)**, the AI Tinkerers global hackathon on **September 12–13, 2026**. Choose your city on the event page for its local schedule. Put an agent inside a conversation, an app, a phone, or a physical environment. Make the context of that place essential to what it can do.
+Built at AI Tinkerers *Agents, Everywhere* (Hyderabad, 12 Sep 2026) on the
+[CopilotKit agents-everywhere starter kit](https://github.com/CopilotKit/agents-everywhere-starter-kit).
+See [SUBMISSION.md](SUBMISSION.md) for what was inherited and what was built.
 
-This kit gives you three runnable templates, files to hand to your coding agent, and sponsor setup notes. Pick a user, a problem, and one complete interaction. You can use any stack; you do not need every sponsor or every surface.
+## Quickstart (clean clone → sample film)
 
-Your project and its core functionality must be created during the event. Existing libraries, templates, and starter code are allowed; describe what you reuse and what you build. Read [the rules](hackathon-rules.md), then follow your city's participant portal for the current deadline and judging criteria.
-
-## Get started
-
-Use Node.js 22+, then clone and install the kit:
+Node.js 22+ and FFmpeg at `/opt/homebrew/bin/ffmpeg` (macOS Homebrew). Python 3 with Pillow draws words on screen.
 
 ```bash
-git clone https://github.com/CopilotKit/agents-everywhere-starter-kit.git
-cd agents-everywhere-starter-kit
 npm ci
 cp .env.example .env
 ```
 
-Choose one template and configure only the credentials it needs. Slack and web use the root install; React Native has its own install under `apps/mobile` because Expo pins its React Native stack separately.
+Fill in `.env` (never commit it):
 
-Paste this into your coding agent:
-
-```text
-Read AGENTS.md, hackathon-overview.md, hackathon-rules.md, and
-using-sponsor-tools.md. Help me choose one template app README for my idea,
-then build a new project using its infrastructure. Ask me who it is for and
-what the agent should do in that setting. Read the selected template before
-editing; for Slack also read .agents/skills/build-channels-agent/SKILL.md.
-Use only the integrations the idea needs. Verify a complete interaction and
-prepare SUBMISSION.md, distinguishing inherited code from our event work.
+```dotenv
+MODEL_PROVIDER=anthropic
+MODEL=anthropic:claude-opus-5
+ANTHROPIC_API_KEY=your-key
 ```
 
-## Templates
+```bash
+npm run dev:web
+```
 
-These starting points serve different kinds of context. **CopilotKit Channels** brings the Slack agent into the conversation; **CopilotKit React** connects the web agent to the app people are using; **CopilotKit React Native** brings the same agent pattern onto a phone.
+Open http://127.0.0.1:3100 — VETTU opens a placeholder film, **MY FIRST FILM**. Rename it, add, reorder, park or remove
+sections, open the chat pill bottom-right and say the cut. `npm run verify` runs typechecks and offline tests with no
+credentials.
 
-### 1. Slack — an agent that joins the thread
+## The two pages
 
-**OpenAI + CopilotKit Channels + Exa**
-
-An agent reads what people already said, researches with Exa, and answers in the same thread with native cards and source links. Start with a support conversation, a research discussion, or a team decision.
-
-The included Slack app supplies thread history, subscriptions, search, and Channels UI. Configure your model, Exa, and a managed Channel, then run `npm run dev:slack`. No public tunnel is needed. Teams or other chat platforms can use the same Channels pattern, but this starter ships the Slack app.
-
-**[Use the Slack template →](apps/channel/)**
-
-### 2. Web — an agent inside your app
-
-**OpenAI + CopilotKit React + Ambiguous AI**
-
-An agent sees the page you are on and turns a request into a real workplace record you can still find after a refresh. Adapt it to customer follow-ups, a project workspace, or a personal planning app.
-
-The included web app supplies page context, frontend tools, agent-rendered UI, and a browser approval step. Connect an Ambiguous AI workspace, then run `npm run dev:web`; approved follow-ups are saved through the server and can be read back after refresh.
-
-**[Use the web template →](apps/web/)**
-
-### 3. React Native — an agent in your pocket
-
-**OpenAI or OpenRouter + CopilotKit React Native**
-
-A mobile agent reads app state, renders native cards, and waits for a tap before changing local sample data. Start with a personal finance assistant, a field checklist, an inventory counter, or any workflow where phone context and approval matter.
-
-The included Expo app supplies seeded finance state, native rendered tool UI, a human-in-the-loop expense approval, and a mobile-specific CopilotKit runtime endpoint served by the web app. Configure your model provider, start `npm run dev:web`, then run the mobile app from `apps/mobile`.
-
-**[Use the React Native template →](apps/mobile/)**
-
-### Make the demo yours
-
-The supplied on-call and finance assistants are **infrastructure examples**: read ambient context, call a tool, render useful UI, and return a verifiable result. Choose a different user, problem, dataset, and interaction; the goal is your own project, not another version of the starter scenario.
-
-Use the [demo prompts](dev-docs/demo-prompts.md) to learn how the pieces connect, then replace the sample domain. In the Slack sample incident flow, approval cards record decisions without executing production actions. In the web follow-up flow, the page approval button saves the reviewed Ambiguous task. In the mobile finance flow, approval changes local in-memory sample data. Enforce the same kind of write boundary around any external action you add.
-
-Want another surface pattern? The web app also includes a voice route, and the shared agent can connect to remote MCP tools when configured. The event surfaces are inspiration, not separate tracks or a requirement to build multiple apps.
-
-## Coding agent
-
-Give your agent these files before it starts coding:
-
-| File | What it provides |
+| page | what it shows |
 |---|---|
-| [hackathon-overview.md](hackathon-overview.md) | The challenge, four surfaces, and official judging criteria |
-| [hackathon-rules.md](hackathon-rules.md) | Build eligibility, inherited code, and required deliverables |
-| [using-sponsor-tools.md](using-sponsor-tools.md) | Every sponsor featured in this kit: access, authentication, configuration, and a first working call |
-| [AGENTS.md](AGENTS.md) | Repository conventions and verification commands |
-| [Channels skill](.agents/skills/build-channels-agent/SKILL.md) | Verified Channels APIs for the Slack template |
+| `/?film=<id>` — **BOARD** | film bar (VETTU · film name menu · BOARD/WORLD · § chips), the header maths (PLAN · M · % · clips · seconds left), the running cut, one slab per section with its cards, the YOUR EDIT strip and the VETTU preview |
+| `/world?film=<id>` — **WORLD** | cast · locations · props, with member rows, tabs and slot cards |
 
-The app READMEs provide launch commands, files to customize, and a concrete result to check. Start with one template and add a second surface only if it helps your user.
+The chat overlay (CopilotKit `CopilotPopup`) floats over both pages without moving the board. Typed chat, LIVE voice
+and the Director call the **same tool registry** (`apps/web/src/lib/contracts/tools.ts`) and the same guarded routes.
 
-## Resources
+## Environment
 
-| Need | Go here |
+| name | needed for |
 |---|---|
-| Event details, deadline, and judging | [Find your city](https://aitinkerers.org/hackathons/global/agents-everywhere), then open its participant portal and handbook |
-| OpenAI agent development | [Agents SDK quickstart](https://openai.github.io/openai-agents-js/guides/quickstart/) |
-| OpenRouter access and model choice | [Quickstart](https://openrouter.ai/docs/quickstart) · [Keys](https://openrouter.ai/keys) · [Model catalog](https://openrouter.ai/models) · [Model switching](dev-docs/model-switching.md) |
-| CopilotKit app development | [Docs](https://docs.copilotkit.ai/) · [Tools and context](dev-docs/tools-and-context.md) · [Discord channel for technical questions](https://discord.com/channels/1122926057641742418/1548038338848489532) |
-| CopilotKit Channels | [Channels guide](https://copilotkit.ai/channels-guide.md) · [Screenshot walkthrough](dev-docs/channels-sdk-walkthrough/README.md) · [OpenTag example app](https://github.com/CopilotKit/OpenTag) |
-| Exa quickstart | [Search API guide](https://exa.ai/docs/reference/search-api-guide) · [Kit setup](using-sponsor-tools.md#exa) |
-| Auth0 API authorization | [Node API](https://auth0.com/docs/quickstart/backend/nodejs) · [Kit setup](using-sponsor-tools.md#auth0) |
-| Ambiguous AI quickstart | [Developer guide](https://www.ambiguous.ai/llms.txt) · [Kit setup](using-sponsor-tools.md#ambiguous-ai) |
-| Rehearse and debug | [Demo prompts](dev-docs/demo-prompts.md) · [Troubleshooting](dev-docs/troubleshooting.md) |
-| Prepare your entry | [Submission checklist](SUBMISSION.md) |
+| `MODEL_PROVIDER` · `MODEL` · `ANTHROPIC_API_KEY` | the overlay agent, the Slack reviewer and the Director |
+| `VETTU_DATA_DIR` | VETTU's store: films, timelines, versions, jobs, review queue (default `.data/vettu`, git-ignored) |
+| `VETTU_WORK` | the only folder FFmpeg and uploads write to (absolute path) |
+| `AMBIGUOUS_API_KEY` | records of approved cuts and change-order tasks |
+| `KLING_API_KEY` | animate a new shot from an existing frame |
+| `ELEVENLABS_API_KEY` · `ELEVENLABS_AGENT_ID` | sound effects · LIVE voice |
+| `INTELLIGENCE_API_KEY` · `CHANNEL_CODE` · `PORT` · `VETTU_WEB_URL` | the Slack review thread (channel process) |
+| `FILM_REPORTS_DIR` · `FILM_ROOT` · `LABS_OUT` · `FILM_RUNNING_CUT` | optional: import an existing film board (read-only) |
 
-For credit redemption instructions, choose your city on the [global event page](https://aitinkerers.org/hackathons/global/agents-everywhere) and check its participant portal's **Credits & Offers** section.
+Both processes read `.env` only at start: restart them after every change.
 
-For technical questions during the event, check your city's participant portal and ask your local organizers.
+## Optional: import an existing film board
 
-For the Slack/web workspaces, `npm run verify` runs typechecks and offline tests without credentials. The mobile app has its own install, tests, typecheck, and Metro export checks under `apps/mobile`. Each app reports missing configuration when the relevant integration is used. Live sponsor calls and platform delivery require your accounts. See [developer docs](dev-docs/README.md) for detailed setup and deployment.
+Set the four `FILM_*` paths and restart. The film menu then offers **Import**. The importer reads the board's state and
+index files as text (never executed), and media is served only through `/api/media` from those roots after a realpath
+allowlist check. VETTU never writes into those folders.
+
+## The Slack review thread (second process)
+
+1. In CopilotKit Intelligence, create a Channel with the Slack adapter and install the Slack app it generates.
+2. Put its code in `CHANNEL_CODE` and a project key in `INTELLIGENCE_API_KEY`; keep `VETTU_WEB_URL=http://127.0.0.1:3100`.
+3. `npm run channel:status`, then start the listener — **not** `dev:slack` (its `--watch` restart silently kills posted buttons):
+
+```bash
+npm run start --workspace channel
+```
+
+4. `/invite` the bot to the review channel and mention it by picking the autocomplete. It posts a card with
+   **Post latest cut**: approved cuts arrive as an MP4 plus a review card (Approve / Request changes). A reply after
+   "Request changes" becomes a change order in VETTU and a task in Ambiguous.
+
+Slack cannot be pushed to from the web app; the channel pulls the queue on the next Slack event.
+
+## LIVE voice (ElevenLabs)
+
+Create an ElevenLabs agent (LLM Claude Sonnet 5, authentication on) with client tools named exactly as in
+`apps/web/src/lib/contracts/tools.ts`, each with **Wait for response**. Put its id in `ELEVENLABS_AGENT_ID`. The server
+mints a short-lived conversation token at `/api/live-token`; the API key never reaches the browser.
+
+## Safety rails
+
+- **Nothing publishes by itself.** `propose_render` only prepares; the Approve click renders 1080p, writes Ambiguous
+  and queues Slack.
+- Every route is loopback-only; browser writes need a same-origin JSON request with a session cookie; the film store
+  uses `If-Match` revisions (409 on a stale write).
+- FFmpeg runs with argument arrays, one preview at a time, inputs only from allowed roots, outputs only in `VETTU_WORK`.
+- Words on screen are drawn by Pillow, never by a model.
+
+## License
+
+MIT, as the starter kit. Film media is never part of this repository.
