@@ -403,15 +403,20 @@ export function VettuControl(props: VettuOverlayProps) {
 
   useVettuTool(
     "animate_insert",
-    async ({ insertId, prompt, section }) => {
+    async ({ fromShot, at, afterShot, secs, insertId, prompt, section }) => {
       const t = targetOf(latest.current, section);
       if (!t.ok) return fail(t.message);
+      if (!fromShot && !insertId) return fail('Say which shot to animate (fromShot, e.g. "S13") or which insert to re-animate (insertId).');
       const { job } = await api.jobs.create({
         kind: "animate",
         filmId: t.filmId,
         section: t.section.id,
-        insertId,
-        prompt,
+        ...(fromShot ? { fromShot } : {}),
+        ...(at !== undefined ? { at } : {}),
+        ...(afterShot ? { afterShot } : {}),
+        ...(secs !== undefined ? { secs } : {}),
+        ...(insertId ? { insertId } : {}),
+        ...(prompt ? { prompt } : {}),
       });
       await refreshQuietly();
       return jobResult(job, t.section);
