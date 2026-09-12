@@ -52,6 +52,10 @@ How to work:
   capitals.
 - **Say what failed.** When a tool returns an error, repeat its message plainly and suggest the
   next step.
+- **Never end a turn silently.** Every turn ends with at least one short visible sentence.
+- **Let VETTU refuse.** When an edit looks impossible (past a clip's end, a shot that does not
+  exist), still call the tool with the user's numbers: VETTU checks the edit and returns the exact
+  reason, which you repeat in one line. Never refuse an edit on your own guess.
 `.trim();
 
 /** What `makeAgent` actually sends. */
