@@ -1,0 +1,215 @@
+{
+  "id": "f_sample0001",
+  "rev": 1,
+  "name": "MY FIRST FILM",
+  "source": { "kind": "sample" },
+  "activeSection": "s_start",
+  "targetSecs": null,
+  "letters": {
+    "F": { "label": "image", "colour": "#7288ff", "kind": "thing", "inUse": true },
+    "C": { "label": "clip", "colour": "#b48cff", "kind": "thing", "inUse": true },
+    "S": { "label": "position", "colour": "#35d492", "kind": "thing", "inUse": true },
+    "X": { "label": "to-create", "colour": "#f2b53d", "kind": "thing", "inUse": true },
+    "M": { "label": "music", "colour": "#4fd8d0", "kind": "thing", "inUse": true },
+    "K": { "label": "Kling", "colour": "#b8e356", "kind": "maker", "inUse": true },
+    "MJ": { "label": "Midjourney", "colour": "#ff6fd8", "kind": "maker", "inUse": true },
+    "LEAD": { "label": "the lead", "colour": "#7fd0ff", "kind": "who", "inUse": true },
+    "FRIEND": { "label": "the friend", "colour": "#a9b34a", "kind": "who", "inUse": true },
+    "PROPS": { "label": "props", "colour": "#b87333", "kind": "thing", "inUse": true }
+  },
+  "sections": [
+    {
+      "id": "s_start",
+      "code": "§01",
+      "name": "THE START",
+      "order": 1,
+      "targetSecs": 30,
+      "cutSecs": 0,
+      "full": false,
+      "locked": false,
+      "done": 0,
+      "total": 2,
+      "parked": false,
+      "derived": true
+    },
+    {
+      "id": "s_middle",
+      "code": "§02",
+      "name": "THE MIDDLE",
+      "order": 2,
+      "targetSecs": 60,
+      "cutSecs": 0,
+      "full": false,
+      "locked": false,
+      "done": 0,
+      "total": 1,
+      "parked": false,
+      "derived": true
+    },
+    {
+      "id": "s_end",
+      "code": "§03",
+      "name": "THE END",
+      "order": 3,
+      "targetSecs": 20,
+      "cutSecs": 0,
+      "full": false,
+      "locked": false,
+      "done": 0,
+      "total": 0,
+      "parked": true,
+      "derived": true
+    }
+  ],
+  "cards": [
+    {
+      "id": "s_start/S1",
+      "section": "s_start",
+      "slot": 1,
+      "kind": "words",
+      "media": null,
+      "poster": null,
+      "secs": 15,
+      "in": 0,
+      "out": null,
+      "letters": [],
+      "caption": "the first light",
+      "maker": null,
+      "status": "placed",
+      "takes": [],
+      "reserve": false,
+      "inCut": null,
+      "cutIn": null,
+      "cutOut": null,
+      "deity": null
+    },
+    {
+      "id": "s_start/S2",
+      "section": "s_start",
+      "slot": 2,
+      "kind": "words",
+      "media": null,
+      "poster": null,
+      "secs": 15,
+      "in": 0,
+      "out": null,
+      "letters": [],
+      "caption": "a door opens",
+      "maker": null,
+      "status": "placed",
+      "takes": [],
+      "reserve": false,
+      "inCut": null,
+      "cutIn": null,
+      "cutOut": null,
+      "deity": null
+    },
+    {
+      "id": "s_middle/S1",
+      "section": "s_middle",
+      "slot": 1,
+      "kind": "words",
+      "media": null,
+      "poster": null,
+      "secs": 60,
+      "in": 0,
+      "out": null,
+      "letters": [{ "code": "X", "text": "1" }],
+      "caption": "the long walk",
+      "maker": "X",
+      "status": "todo",
+      "takes": [],
+      "reserve": false,
+      "inCut": null,
+      "cutIn": null,
+      "cutOut": null,
+      "deity": null
+    }
+  ],
+  "sounds": [],
+  "plans": [],
+  "notes": [],
+  "world": {
+    "cast": [
+      {
+        "code": "LEAD",
+        "label": "the lead",
+        "colour": "#7fd0ff",
+        "tabs": [
+          {
+            "id": "face",
+            "label": "THE FACE",
+            "cards": [
+              { "id": "lead/face1", "label": "face", "code": "LEAD", "todo": false, "ar": "9:16", "media": null },
+              { "id": "lead/face2", "label": "profile", "code": "LEAD", "todo": true, "ar": "9:16", "media": null }
+            ]
+          },
+          {
+            "id": "body",
+            "label": "THE BODY",
+            "cards": [
+              { "id": "lead/body1", "label": "full figure", "code": "LEAD", "todo": true, "ar": "9:16", "media": null }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "FRIEND",
+        "label": "the friend",
+        "colour": "#a9b34a",
+        "tabs": [
+          {
+            "id": "all",
+            "label": "",
+            "cards": [
+              { "id": "friend/1", "label": "face", "code": "FRIEND", "todo": true, "ar": "1:1", "media": null }
+            ]
+          }
+        ]
+      }
+    ],
+    "locations": [
+      {
+        "code": "LOCATIONS",
+        "label": "the locations",
+        "colour": null,
+        "tabs": [
+          {
+            "id": "shore",
+            "label": "THE SHORE",
+            "cards": [
+              { "id": "loc/shore1", "label": "the sand", "code": null, "todo": false, "ar": "7:3", "media": null },
+              { "id": "loc/shore2", "label": "the pier", "code": null, "todo": true, "ar": "7:3", "media": null }
+            ]
+          },
+          {
+            "id": "town",
+            "label": "THE TOWN",
+            "cards": [
+              { "id": "loc/town1", "label": "the square", "code": null, "todo": true, "ar": "7:3", "media": null }
+            ]
+          }
+        ]
+      }
+    ],
+    "props": [
+      {
+        "code": "LAMP",
+        "label": "lamp",
+        "colour": "#b87333",
+        "tabs": [
+          {
+            "id": "all",
+            "label": "",
+            "cards": [
+              { "id": "lamp/1", "label": "the lamp", "code": "LAMP", "todo": false, "ar": "1:1", "media": null }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "runningCut": null,
+  "createdAt": "2026-09-12T00:00:00.000Z",
+  "updatedAt": "2026-09-12T00:00:00.000Z"
+}

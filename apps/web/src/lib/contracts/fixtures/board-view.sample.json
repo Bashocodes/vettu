@@ -269,6 +269,24 @@
       "colour": "#ff6fd8",
       "kind": "maker",
       "inUse": true
+    },
+    "LEAD": {
+      "label": "the lead",
+      "colour": "#7fd0ff",
+      "kind": "who",
+      "inUse": true
+    },
+    "FRIEND": {
+      "label": "the friend",
+      "colour": "#a9b34a",
+      "kind": "who",
+      "inUse": true
+    },
+    "PROPS": {
+      "label": "props",
+      "colour": "#b87333",
+      "kind": "thing",
+      "inUse": true
     }
   }
 }
