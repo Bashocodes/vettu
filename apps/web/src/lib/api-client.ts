@@ -166,9 +166,7 @@ export const api = {
       request<{ jobId: string }>("/director", { body: { filmId, section, brief } }),
   },
   live: {
-    session: (sdp: string) =>
-      request<{ session: { id: string }; transport: { type: "webrtc"; sdp: string } }>("/live-session", {
-        body: { sdp },
-      }),
+    check: () => request<{ available: boolean; reason: string | null }>("/live-token?check=1"),
+    token: () => request<{ token: string }>("/live-token"),
   },
 };

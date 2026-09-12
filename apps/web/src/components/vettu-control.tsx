@@ -197,7 +197,9 @@ export function VettuControl(props: VettuOverlayProps) {
       const film = await api.films.patchSection(t.filmId, t.section.id, { name });
       await refreshQuietly();
       const now = film.sections.find((s) => s.id === t.section.id);
-      return ok(`${now?.code ?? t.section.code} is now ${now?.name ?? name}`);
+      return ok(
+        `Renamed ${now?.code ?? t.section.code} from ${t.section.name} to ${now?.name ?? name} (the board context now shows the new name).`,
+      );
     },
     deps,
   );
