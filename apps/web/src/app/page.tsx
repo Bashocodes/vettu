@@ -1,6 +1,13 @@
 "use client";
 
-/** PLACEHOLDER from the integrator — W1 replaces this with the film board. */
+/** BOARD — `/?film=<id>`. useSearchParams lives under a Suspense boundary. */
+import { Suspense } from "react";
+import { BoardScreen } from "@/components/board/board-screen";
+
 export default function BoardPage() {
-  return <main data-vettu="board">VETTU</main>;
+  return (
+    <Suspense fallback={null}>
+      <BoardScreen />
+    </Suspense>
+  );
 }
