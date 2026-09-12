@@ -10,10 +10,16 @@
  * Component.
  */
 import { CopilotKitProvider } from "@copilotkit/react-core/v2";
+import { LiveVoiceProvider } from "@/lib/live/live-voice";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // `runtimeUrl` points at the Hono handler in app/api/copilotkit.
   // If you switch that handler to `mode: "single-route"`, you must also set
   // `useSingleEndpoint` here — the two settings have to agree.
-  return <CopilotKitProvider runtimeUrl="/api/copilotkit">{children}</CopilotKitProvider>;
+  // LiveVoiceProvider sits ABOVE the popup so minimising the overlay never ends a LIVE call.
+  return (
+    <CopilotKitProvider runtimeUrl="/api/copilotkit">
+      <LiveVoiceProvider>{children}</LiveVoiceProvider>
+    </CopilotKitProvider>
+  );
 }

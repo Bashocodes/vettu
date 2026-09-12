@@ -1,0 +1,184 @@
+{
+  "rev": 3,
+  "filmId": "f_sample0001",
+  "film": "MY FIRST FILM",
+  "family": [
+    "CAST",
+    "LOCATIONS",
+    "PROPS"
+  ],
+  "cast": [
+    {
+      "code": "LEAD",
+      "label": "the lead",
+      "colour": "#7fd0ff",
+      "filled": 1,
+      "total": 3,
+      "tabs": [
+        {
+          "id": "face",
+          "label": "THE FACE",
+          "filled": 1,
+          "total": 2,
+          "cards": [
+            {
+              "id": "lead/face1",
+              "label": "face",
+              "code": "LEAD",
+              "todo": false,
+              "ar": "9:16",
+              "img": null
+            },
+            {
+              "id": "lead/face2",
+              "label": "profile",
+              "code": "LEAD",
+              "todo": true,
+              "ar": "9:16",
+              "img": null
+            }
+          ]
+        },
+        {
+          "id": "body",
+          "label": "THE BODY",
+          "filled": 0,
+          "total": 1,
+          "cards": [
+            {
+              "id": "lead/body1",
+              "label": "full figure",
+              "code": "LEAD",
+              "todo": true,
+              "ar": "9:16",
+              "img": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "FRIEND",
+      "label": "the friend",
+      "colour": "#a9b34a",
+      "filled": 0,
+      "total": 1,
+      "tabs": [
+        {
+          "id": "all",
+          "label": "",
+          "filled": 0,
+          "total": 1,
+          "cards": [
+            {
+              "id": "friend/1",
+              "label": "face",
+              "code": "FRIEND",
+              "todo": true,
+              "ar": "1:1",
+              "img": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "locations": [
+    {
+      "code": "LOCATIONS",
+      "label": "the locations",
+      "colour": null,
+      "filled": 1,
+      "total": 3,
+      "tabs": [
+        {
+          "id": "shore",
+          "label": "THE SHORE",
+          "filled": 1,
+          "total": 2,
+          "cards": [
+            {
+              "id": "loc/shore1",
+              "label": "the sand",
+              "code": null,
+              "todo": false,
+              "ar": "7:3",
+              "img": null
+            },
+            {
+              "id": "loc/shore2",
+              "label": "the pier",
+              "code": null,
+              "todo": true,
+              "ar": "7:3",
+              "img": null
+            }
+          ]
+        },
+        {
+          "id": "town",
+          "label": "THE TOWN",
+          "filled": 0,
+          "total": 1,
+          "cards": [
+            {
+              "id": "loc/town1",
+              "label": "the square",
+              "code": null,
+              "todo": true,
+              "ar": "7:3",
+              "img": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "props": [
+    {
+      "code": "LAMP",
+      "label": "lamp",
+      "colour": "#b87333",
+      "filled": 1,
+      "total": 1,
+      "tabs": [
+        {
+          "id": "all",
+          "label": "",
+          "filled": 1,
+          "total": 1,
+          "cards": [
+            {
+              "id": "lamp/1",
+              "label": "the lamp",
+              "code": "LAMP",
+              "todo": false,
+              "ar": "1:1",
+              "img": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "letters": {
+    "LEAD": {
+      "label": "the lead",
+      "colour": "#7fd0ff",
+      "kind": "who",
+      "inUse": true
+    },
+    "FRIEND": {
+      "label": "the friend",
+      "colour": "#a9b34a",
+      "kind": "who",
+      "inUse": true
+    },
+    "PROPS": {
+      "label": "props",
+      "colour": "#b87333",
+      "kind": "thing",
+      "inUse": true
+    }
+  }
+}

@@ -1,0 +1,496 @@
+{
+  "filmId": "f_fixture01",
+  "section": "s04",
+  "baseRev": 7,
+  "version": 0,
+  "status": "draft",
+  "clips": [
+    {
+      "id": "C2",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_1.mp4"
+      },
+      "duration": 3.583,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C3",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_2.mp4"
+      },
+      "duration": 5.583,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C92",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_3.mp4"
+      },
+      "duration": 5.542,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C5",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_4.mp4"
+      },
+      "duration": 4.583,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C6",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_5.mp4"
+      },
+      "duration": 4.583,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C7",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_6.mp4"
+      },
+      "duration": 2.583,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C8",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_7.mp4"
+      },
+      "duration": 2.083,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C9",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_8.mp4"
+      },
+      "duration": 2.125,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C10",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_9.mp4"
+      },
+      "duration": 4.542,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C11",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_10.mp4"
+      },
+      "duration": 2.583,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C12",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_11.mp4"
+      },
+      "duration": 2.583,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C13",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_12.mp4"
+      },
+      "duration": 4.583,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    },
+    {
+      "id": "C14",
+      "media": {
+        "root": "FILM_ROOT",
+        "p": "clips/placeholder_13.mp4"
+      },
+      "duration": 4.792,
+      "width": 1920,
+      "height": 1080,
+      "fps": 24,
+      "hasAudio": false
+    }
+  ],
+  "shots": [
+    {
+      "id": "S1",
+      "clipId": "C2",
+      "cardId": "sec04/S1",
+      "slot": 1,
+      "in": 0,
+      "out": 3.083,
+      "description": "placeholder shot 1",
+      "tags": []
+    },
+    {
+      "id": "S2",
+      "clipId": "C3",
+      "cardId": "sec04/S2",
+      "slot": 2,
+      "in": 0,
+      "out": 5.083,
+      "description": "placeholder shot 2",
+      "tags": []
+    },
+    {
+      "id": "S3",
+      "clipId": "C92",
+      "cardId": "sec04/S3",
+      "slot": 3,
+      "in": 0,
+      "out": 5.042,
+      "description": "placeholder shot 3",
+      "tags": []
+    },
+    {
+      "id": "S4",
+      "clipId": "C5",
+      "cardId": "sec04/S4",
+      "slot": 4,
+      "in": 0,
+      "out": 4.083,
+      "description": "placeholder shot 4",
+      "tags": []
+    },
+    {
+      "id": "S5",
+      "clipId": "C6",
+      "cardId": "sec04/S5",
+      "slot": 5,
+      "in": 0,
+      "out": 4.083,
+      "description": "placeholder shot 5",
+      "tags": []
+    },
+    {
+      "id": "S6",
+      "clipId": "C7",
+      "cardId": "sec04/S6",
+      "slot": 6,
+      "in": 0,
+      "out": 2.083,
+      "description": "placeholder shot 6",
+      "tags": []
+    },
+    {
+      "id": "S7",
+      "clipId": "C8",
+      "cardId": "sec04/S7",
+      "slot": 7,
+      "in": 0,
+      "out": 1.583,
+      "description": "placeholder shot 7",
+      "tags": []
+    },
+    {
+      "id": "S8",
+      "clipId": "C9",
+      "cardId": "sec04/S8",
+      "slot": 8,
+      "in": 0,
+      "out": 1.625,
+      "description": "placeholder shot 8",
+      "tags": []
+    },
+    {
+      "id": "S9",
+      "clipId": "C10",
+      "cardId": "sec04/S9",
+      "slot": 9,
+      "in": 0,
+      "out": 4.042,
+      "description": "placeholder shot 9",
+      "tags": []
+    },
+    {
+      "id": "S10",
+      "clipId": "C11",
+      "cardId": "sec04/S10",
+      "slot": 10,
+      "in": 0,
+      "out": 2.083,
+      "description": "placeholder shot 10",
+      "tags": []
+    },
+    {
+      "id": "S11",
+      "clipId": "C12",
+      "cardId": "sec04/S11",
+      "slot": 11,
+      "in": 0,
+      "out": 2.083,
+      "description": "placeholder shot 11",
+      "tags": []
+    },
+    {
+      "id": "S12",
+      "clipId": "C13",
+      "cardId": "sec04/S12",
+      "slot": 12,
+      "in": 0,
+      "out": 4.083,
+      "description": "placeholder shot 12",
+      "tags": []
+    },
+    {
+      "id": "S13",
+      "clipId": "C14",
+      "cardId": "sec04/S13",
+      "slot": 13,
+      "in": 0,
+      "out": 4.292,
+      "description": "placeholder shot 13",
+      "tags": []
+    }
+  ],
+  "edl": [
+    {
+      "id": "e1",
+      "ref": "S1",
+      "in": 0,
+      "out": 3.083,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 72.0833,
+      "recordOut": 75.1666
+    },
+    {
+      "id": "e2",
+      "ref": "S2",
+      "in": 0,
+      "out": 5.083,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 75.1666,
+      "recordOut": 80.25
+    },
+    {
+      "id": "e3",
+      "ref": "S3",
+      "in": 0,
+      "out": 5.042,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 80.25,
+      "recordOut": 85.2916
+    },
+    {
+      "id": "e4",
+      "ref": "S4",
+      "in": 0,
+      "out": 4.083,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 85.2916,
+      "recordOut": 89.375
+    },
+    {
+      "id": "e5",
+      "ref": "S5",
+      "in": 0,
+      "out": 4.083,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 89.375,
+      "recordOut": 93.4583
+    },
+    {
+      "id": "e6",
+      "ref": "S6",
+      "in": 0,
+      "out": 2.083,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 93.4583,
+      "recordOut": 95.5416
+    },
+    {
+      "id": "e7",
+      "ref": "S7",
+      "in": 0,
+      "out": 1.583,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 95.5416,
+      "recordOut": 97.125
+    },
+    {
+      "id": "e8",
+      "ref": "S8",
+      "in": 0,
+      "out": 1.625,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 97.125,
+      "recordOut": 98.75
+    },
+    {
+      "id": "e9",
+      "ref": "S9",
+      "in": 0,
+      "out": 4.042,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 98.75,
+      "recordOut": 102.7916
+    },
+    {
+      "id": "e10",
+      "ref": "S10",
+      "in": 0,
+      "out": 2.083,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 102.7916,
+      "recordOut": 104.875
+    },
+    {
+      "id": "e11",
+      "ref": "S11",
+      "in": 0,
+      "out": 2.083,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 104.875,
+      "recordOut": 106.9583
+    },
+    {
+      "id": "e12",
+      "ref": "S12",
+      "in": 0,
+      "out": 4.083,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 106.9583,
+      "recordOut": 111.0416
+    },
+    {
+      "id": "e13",
+      "ref": "S13",
+      "in": 0,
+      "out": 4.292,
+      "transition": {
+        "type": "cut",
+        "dur": 0
+      },
+      "change": null,
+      "delta": null,
+      "recordIn": 111.0416,
+      "recordOut": 115.3333
+    }
+  ],
+  "words": [],
+  "inserts": [],
+  "sounds": [],
+  "music": {
+    "media": {
+      "root": "FILM_ROOT",
+      "p": "music/placeholder_cue.mp3"
+    },
+    "offset": 13.041667,
+    "fadeOutAt": 36.55
+  },
+  "jobs": [],
+  "preview": null,
+  "lastChange": null,
+  "updatedAt": "2026-09-12T07:00:00.000Z"
+}
