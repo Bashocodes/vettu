@@ -1,17 +1,12 @@
 import { createChannel } from "@copilotkit/channels";
-import { isSearchConfigured, isWorkplaceConfigured, WORKPLACE_CONTEXT } from "agent-core";
 import { makeChannelAgent } from "./agent";
 import { required } from "./env";
-import { IncidentCard, Timeline, welcomeMessage } from "./components";
-import { proposeAction, readThread, searchTheWeb } from "./tools";
+import { registerReviewThread } from "./review";
+import { postLatestCut, readThread } from "./tools";
 
-// Tools are registered only when their credential is present, so the agent is
-// never handed a tool that will fail when it calls it.
-const tools = [
-  readThread,
-  proposeAction,
-  ...(isSearchConfigured() ? [searchTheWeb] : []),
-];
+// Fail at startup, not on the first Slack event: the review thread pulls
+// VETTU's queue from this loopback origin (e.g. http://127.0.0.1:3100).
+required("VETTU_WEB_URL");
 
 export const channel = createChannel({
   // Must equal the Channel Code in Intelligence, character for character. A
@@ -25,44 +20,27 @@ export const channel = createChannel({
   identifyUser: "platform",
 
   agent: makeChannelAgent,
-  tools,
-  components: [IncidentCard, Timeline],
+  tools: [readThread, postLatestCut],
+
+  // Managed Slack hides tool steps by default; show them so a reviewer sees
+  // "post_latest_cut" working instead of a silent pause.
+  showToolStatus: true,
 
   // Injected into the agent's prompt on every run.
   context: [
-    
     {
-      description: "Rendering",
+      description: "VETTU review",
       value:
-        "You can draw native UI by calling incident_card or timeline. Prefer them over prose whenever the answer has structure.",
+        "VETTU posts approved cuts of a film section here; reviewers approve or request changes; you answer questions about the cut and never approve on anyone's behalf.",
     },
-    ...(isWorkplaceConfigured()
-      ? [{ description: "Workplace", value: WORKPLACE_CONTEXT }]
-      : []),
     {
       description: "Surface",
       value:
-        "This is a chat thread in a channel people are actively working in. Assume others are reading and that some joined late.",
+        "This is a Slack review thread. Several reviewers may be reading and some joined late. Each cut arrives as a 540p preview video followed by a review card; a decision shows as that card changing to Approved, or to a request for a reply with the change.",
     },
   ],
-
 });
 
-// A mention subscribes the conversation, so the agent then follows along instead
-// of needing to be @-mentioned every single turn.
-channel.onMention(async ({ thread }) => {
-  await thread.subscribe();
-  await thread.runAgent();
-});
-
-// Non-mentioned turns only ever reach onMessage — gate them on the flag or the
-// agent will answer every message in every channel it has been invited to.
-channel.onMessage(async ({ thread }) => {
-  if (await thread.isSubscribed()) {
-    await thread.runAgent();
-  }
-});
-
-channel.onWelcome(async ({ thread, platform }) => {
-  await thread.post(welcomeMessage(platform));
-});
+// Mention → subscribe → pull the queue → kickoff card. Subscribed replies file
+// an awaited change note or let the agent answer. Welcome → kickoff card.
+registerReviewThread(channel);
