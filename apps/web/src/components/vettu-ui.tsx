@@ -21,6 +21,7 @@ import type { VettuOverlayProps } from "@/lib/contracts/overlay";
 import type { RenderProposal, VersionRecord } from "@/lib/contracts/review";
 import { VETTU_TOOLS, type VettuToolArgs } from "@/lib/contracts/tools";
 import { useVettuOverlay } from "@/components/overlay/overlay-context";
+import { canCancel, cancelledLine } from "@/components/jobs/job-strip-logic";
 import {
   NO_FILM,
   clip,
@@ -153,11 +154,11 @@ function JobToolCard({
       </article>
     );
   }
-  return <JobPoll jobId={jobId} title={title} label={label} />;
+  return <JobPoll jobId={jobId} tool={tool} title={title} label={label} />;
 }
 
 /** Polls GET /api/jobs?id= every 2 s until the job is terminal. Unmount-safe; job truth is on disk. */
-function JobPoll({ jobId, title, label }: { jobId: string; title: string; label: string }) {
+function JobPoll({ jobId, tool, title, label }: { jobId: string; tool: JobTool; title: string; label: string }) {
   const overlay = useVettuOverlay();
   const refreshRef = useRef(overlay?.refresh);
   useEffect(() => {
@@ -205,10 +206,46 @@ function JobPoll({ jobId, title, label }: { jobId: string; title: string; label:
     };
   }, [jobId]);
 
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  /** POST cancel; the server answers with the job file's truth (409 when it already finished). */
+  const cancel = async () => {
+    if (cancelling) return;
+    setCancelling(true);
+    setCancelError(null);
+    try {
+      const { job: next } = await api.jobs.cancel(jobId);
+      jobCache.set(jobId, next);
+      if (mounted.current) setJob(next);
+    } catch (e) {
+      if (!mounted.current) return;
+      setCancelError(errorMessage(e, "Could not cancel that job."));
+      const fresh = await api.jobs.get(jobId).catch(() => null);
+      if (fresh && mounted.current) {
+        jobCache.set(jobId, fresh.job);
+        setJob(fresh.job);
+      }
+    } finally {
+      if (mounted.current) setCancelling(false);
+    }
+  };
+
   const status = job?.status ?? "queued";
   const mediaUrl = job?.result?.url;
+  const live = !TERMINAL.has(status);
+  // The Director (first_assembly) run does not honour cancel yet — no Cancel button for it.
+  const kind = tool === "first_assembly" ? "assembly" : (job?.kind ?? null);
+  const offerCancel = live && kind !== "assembly" && (job ? canCancel(job) : true);
   return (
-    <article className="vx-card" data-vx="job" data-job={jobId}>
+    <article className="vx-card" data-vx="job" data-job={jobId} data-status={status}>
       <div className="vx-row">
         <h4>{title}</h4>
         <span className="vx-chip" data-tone={jobTone(status)}>
@@ -217,22 +254,35 @@ function JobPoll({ jobId, title, label }: { jobId: string; title: string; label:
       </div>
       <p className="vx-text">{clip(job?.title, 120) || label}</p>
       <p className="vx-mono vx-dim">{jobId}</p>
-      {job?.progress && !TERMINAL.has(status) ? <p className="vx-text vx-dim">{job.progress}</p> : null}
+      {job?.progress && live ? <p className="vx-text vx-dim">{clip(job.progress, 200)}</p> : null}
+      {status === "cancelled" ? <p className="vx-text vx-dim">{cancelledLine(kind)}</p> : null}
       {job?.result?.note ? <p className="vx-text">{job.result.note}</p> : null}
       {isMediaUrl(mediaUrl) ? (
         <a className="vx-link" href={mediaUrl} target="_blank" rel="noreferrer">
           Open the result
         </a>
       ) : null}
-      {job?.error ? (
+      {job?.error && status !== "cancelled" ? (
         <p className="vx-err" role="alert">
-          {job.error}
+          {clip(job.error, 200)}
         </p>
       ) : null}
       {error ? (
         <p className="vx-err" role="alert">
           {error}
         </p>
+      ) : null}
+      {cancelError ? (
+        <p className="vx-err" role="alert">
+          {cancelError}
+        </p>
+      ) : null}
+      {offerCancel ? (
+        <div className="vx-actions">
+          <button type="button" className="vx-btn" disabled={cancelling} onClick={() => void cancel()}>
+            {cancelling ? "Cancelling…" : "Cancel"}
+          </button>
+        </div>
       ) : null}
     </article>
   );

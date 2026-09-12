@@ -57,11 +57,15 @@ export async function createJob(input: {
 export async function updateJob(
   id: string,
   patch: Partial<Omit<Job, "id" | "filmId" | "section" | "kind" | "createdAt">>,
+  options: { onlyIf?: readonly JobStatus[] } = {},
 ): Promise<Job> {
   const path = jobPath(id);
   return serial(path, async () => {
     const current = await readJson<Job>(path);
     if (!current) throw new HttpError(404, "No such job.");
+    // Cancelled is sticky: a background run that is still finishing can never flip it back.
+    if (current.status === "cancelled") return current;
+    if (options.onlyIf && !options.onlyIf.includes(current.status)) return current;
     const next: Job = { ...current, ...patch, id: current.id, filmId: current.filmId, section: current.section, kind: current.kind, createdAt: current.createdAt };
     if (patch.status === "running" && !next.startedAt) next.startedAt = new Date().toISOString();
     if (patch.status && ["done", "failed", "cancelled"].includes(patch.status) && !next.finishedAt)
@@ -86,9 +90,18 @@ export async function listJobs(filter: { filmId?: string; section?: string }): P
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
+export const JOB_FINISHED_MESSAGE = "That job already finished.";
+
+/** Cancel a queued/running job (the file on disk is the truth). A terminal job → 409. */
 export async function cancelJob(id: string): Promise<Job> {
   const job = await getJob(id);
   if (!job) throw new HttpError(404, "No such job.");
-  if (job.status !== "queued" && job.status !== "running") return job;
-  return updateJob(id, { status: "cancelled", finishedAt: new Date().toISOString() });
+  if (job.status !== "queued" && job.status !== "running") throw new HttpError(409, JOB_FINISHED_MESSAGE);
+  const next = await updateJob(
+    id,
+    { status: "cancelled", finishedAt: new Date().toISOString(), progress: "Cancelled" },
+    { onlyIf: ["queued", "running"] },
+  );
+  if (next.status !== "cancelled") throw new HttpError(409, JOB_FINISHED_MESSAGE); // it finished in between
+  return next;
 }

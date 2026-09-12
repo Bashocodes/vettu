@@ -3,11 +3,14 @@
  * Drawing is OFF in this build (no image model). POST /api/jobs and the Director call
  * startGeneratorJob. The fast placeholder step is awaited, the job returns AT ONCE and the slow
  * providers run fire-and-forget. All truth lives in the job file and the timeline. Server only.
+ *
+ * Cancel: the background runs re-read the job file right before every media swap, preview and
+ * "done". A cancelled job stops there — no swap, no preview, no done (the job file stays cancelled).
  */
 import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 import type { Job, JobCreateBody } from "@/lib/contracts/jobs";
-import type { Insert, LaidSound, Timeline } from "@/lib/contracts/timeline";
+import type { Insert, InsertStatus, LaidSound, Timeline } from "@/lib/contracts/timeline";
 import { HttpError } from "../guard";
 import { resolveMedia, workDir } from "../roots";
 import {
@@ -19,7 +22,7 @@ import {
   stillSourceFor,
   type AnimateBody,
 } from "./animate";
-import { changeTimeline, newJob, openTimeline, patchJob, previewFor } from "./bridge";
+import { changeTimeline, newJob, openTimeline, patchJob, previewFor, readJob } from "./bridge";
 import { GenError } from "./ffmpeg";
 import { ensureDir, insertDir, workMedia, writeStill } from "./frames";
 import { klingAnimate } from "./kling";
@@ -29,6 +32,17 @@ import { measurePeak, normalise, requestSound } from "./sound";
 
 type SoundBody = Extract<JobCreateBody, { kind: "sound" }>;
 
+/** Injectable providers for the background runs (tests pass fakes; production uses the real ones). */
+export interface RunDeps {
+  kling?: typeof klingAnimate;
+  preview?: typeof previewFor;
+  requestSound?: (input: { prompt: string; duration: number; outAbs: string }) => Promise<void>;
+  measurePeak?: (inAbs: string) => Promise<number>;
+  normalise?: (inAbs: string, outAbs: string) => Promise<void>;
+}
+
+export type RunOutcome = "done" | "cancelled";
+
 const hex = (bytes: number) => randomBytes(bytes).toString("hex");
 const now = () => new Date().toISOString();
 const short = (s: string, n = 48) => {
@@ -37,6 +51,20 @@ const short = (s: string, n = 48) => {
 };
 const addUnique = (list: string[] | undefined, id: string) => (list?.includes(id) ? list : [...(list ?? []), id]);
 const klingKey = () => !!process.env.KLING_API_KEY?.trim();
+
+/** Thrown from inside a provider's progress callback to stop its polling once the job is cancelled. */
+class JobCancelledStop extends Error {
+  constructor() {
+    super("cancelled");
+    this.name = "JobCancelledStop";
+  }
+}
+
+/** Re-read the job file: true when it was cancelled (or is gone). */
+export async function jobCancelled(jobId: string): Promise<boolean> {
+  const job = await readJob(jobId).catch(() => null);
+  return !job || job.status === "cancelled";
+}
 
 function message(error: unknown, fallback: string): string {
   if (error instanceof GenError || error instanceof PlacementError || error instanceof HttpError) return error.message;
@@ -95,6 +123,14 @@ async function startAnimate(body: AnimateBody): Promise<Job> {
   const mode = checkAnimateBody(body);
   const tl = await openTimeline(body.filmId, body.section);
   return mode === "insertId" ? reanimate(body, tl) : animateFromShot(body, tl);
+}
+
+/** A background Kling run threw: mark the insert + job failed, unless the user cancelled it. */
+async function klingStopped(filmId: string, sectionId: string, insertId: string, jobId: string, error: unknown) {
+  if (await jobCancelled(jobId)) return;
+  const text = message(error, "The animate job stopped.");
+  await markInsert(filmId, sectionId, insertId, jobId, { status: "failed", error: text });
+  await failJob(jobId, text);
 }
 
 async function animateFromShot(body: AnimateBody, tl: Timeline): Promise<Job> {
@@ -162,11 +198,7 @@ async function animateFromShot(body: AnimateBody, tl: Timeline): Promise<Job> {
   }
 
   void runKling({ filmId: body.filmId, sectionId, insertId, jobId: job.id, secs, prompt, previewFirst: true }).catch(
-    async (error) => {
-      const text = message(error, "The animate job stopped.");
-      await markInsert(body.filmId, sectionId, insertId, job.id, { status: "failed", error: text });
-      await failJob(job.id, text);
-    },
+    (error) => klingStopped(body.filmId, sectionId, insertId, job.id, error),
   );
   return placed;
 }
@@ -197,43 +229,68 @@ async function reanimate(body: AnimateBody, tl: Timeline): Promise<Job> {
     () => job,
   );
   void runKling({ filmId: body.filmId, sectionId, insertId, jobId: job.id, secs, prompt, previewFirst: false }).catch(
-    async (error) => {
-      const text = message(error, "The animate job stopped.");
-      await markInsert(body.filmId, sectionId, insertId, job.id, { status: "failed", error: text });
-      await failJob(job.id, text);
-    },
+    (error) => klingStopped(body.filmId, sectionId, insertId, job.id, error),
   );
   return running;
 }
 
-async function runKling(input: {
-  filmId: string;
-  sectionId: string;
-  insertId: string;
-  jobId: string;
-  secs: number;
-  prompt: string;
-  previewFirst: boolean;
-}) {
+/** Kling in the background. Exported for tests (inject `deps`). */
+export async function runKling(
+  input: {
+    filmId: string;
+    sectionId: string;
+    insertId: string;
+    jobId: string;
+    secs: number;
+    prompt: string;
+    previewFirst: boolean;
+  },
+  deps: RunDeps = {},
+): Promise<RunOutcome> {
+  const kling = deps.kling ?? klingAnimate;
+  const preview = deps.preview ?? previewFor;
   const { filmId, sectionId, insertId, jobId } = input;
-  if (input.previewFirst) await previewFor(filmId, sectionId);
+  if (await jobCancelled(jobId)) return "cancelled";
+  if (input.previewFirst) await preview(filmId, sectionId);
   const tl = await openTimeline(filmId, sectionId);
   const insert = tl.inserts.find((x) => x.id === insertId);
   if (!insert?.still) throw new GenError("That insert has no still to animate.");
   const stillAbs = await resolveMedia(insert.still);
   if (!stillAbs) throw new GenError("The insert's still could not be read.");
 
+  if (await jobCancelled(jobId)) return "cancelled";
+  const before: InsertStatus = insert.status === "animating" ? "placeholder" : insert.status;
   await changeTimeline(filmId, sectionId, (t) => patchInsert(t, insertId, jobId, { status: "animating", error: null }));
+  // On cancel the insert keeps what it showed before (the push-in or the earlier clip) — no swap.
+  const stop = async (): Promise<RunOutcome> => {
+    await markInsert(filmId, sectionId, insertId, jobId, { status: before, error: null });
+    return "cancelled";
+  };
+
   const dir = await ensureDir(insertDir(insertId));
   const outAbs = join(dir, `kling_${hex(3)}.mp4`);
-  await klingAnimate(
-    { stillAbs, outAbs, prompt: input.prompt, secs: input.secs, externalId: `vettu-${insertId}-${hex(3)}` },
-    { onProgress: async (text) => void (await patchJob(jobId, { progress: text }).catch(() => null)) },
-  );
+  try {
+    await kling(
+      { stillAbs, outAbs, prompt: input.prompt, secs: input.secs, externalId: `vettu-${insertId}-${hex(3)}` },
+      {
+        onProgress: async (text) => {
+          if (await jobCancelled(jobId)) throw new JobCancelledStop(); // stop polling Kling
+          await patchJob(jobId, { progress: text }).catch(() => null);
+        },
+      },
+    );
+  } catch (error) {
+    if (error instanceof JobCancelledStop || (await jobCancelled(jobId))) return stop();
+    throw error;
+  }
+
+  if (await jobCancelled(jobId)) return stop(); // right before the swap
   await changeTimeline(filmId, sectionId, (t) =>
     patchInsert(t, insertId, jobId, { video: workMedia(outAbs), status: "ready", error: null }),
   );
-  await previewFor(filmId, sectionId);
+  if (await jobCancelled(jobId)) return "cancelled"; // no preview
+  await preview(filmId, sectionId);
+  if (await jobCancelled(jobId)) return "cancelled"; // no done
   await patchJob(jobId, {
     status: "done",
     finishedAt: now(),
@@ -241,6 +298,7 @@ async function runKling(input: {
     result: { media: workMedia(outAbs), note: null },
     error: null,
   });
+  return "done";
 }
 
 // ── sound ────────────────────────────────────────────────────────────────────
@@ -263,24 +321,34 @@ async function startSound(body: SoundBody): Promise<Job> {
     return (await failJob(job.id, "ElevenLabs key not set")) ?? job;
   }
   void runSound(body, sectionId, job.id).catch(async (error) => {
+    if (await jobCancelled(job.id)) return;
     await failJob(job.id, message(error, "The sound job stopped."));
   });
   return job;
 }
 
-async function runSound(body: SoundBody, sectionId: string, jobId: string) {
+/** ElevenLabs in the background. Exported for tests (inject `deps`). */
+export async function runSound(body: SoundBody, sectionId: string, jobId: string, deps: RunDeps = {}): Promise<RunOutcome> {
+  const request = deps.requestSound ?? ((input) => requestSound(input));
+  const peakOf = deps.measurePeak ?? measurePeak;
+  const loudnorm = deps.normalise ?? normalise;
+  const preview = deps.preview ?? previewFor;
+
+  if (await jobCancelled(jobId)) return "cancelled";
   await patchJob(jobId, { status: "running", startedAt: now(), progress: "ElevenLabs: generating" });
   const soundId = `snd_${hex(4)}`;
   const dir = await ensureDir(join(workDir(), "sounds", soundId));
   const mp3 = join(dir, "sfx.mp3");
   const wav = join(dir, "sfx.wav");
-  await requestSound({ prompt: body.prompt, duration: body.duration, outAbs: mp3 });
+  await request({ prompt: body.prompt, duration: body.duration, outAbs: mp3 });
+  if (await jobCancelled(jobId)) return "cancelled";
   await patchJob(jobId, { progress: "Measuring the loudness peak" });
-  const peak = await measurePeak(mp3);
-  await normalise(mp3, wav);
+  const peak = await peakOf(mp3);
+  await loudnorm(mp3, wav);
 
   const media = workMedia(wav);
   let placed: { at: number; clamped: boolean } = { at: 0, clamped: false };
+  if (await jobCancelled(jobId)) return "cancelled"; // right before the swap
   await changeTimeline(body.filmId, sectionId, (t) => {
     const idx = resolveEntryIndex(t, body.target);
     if (idx < 0) throw new GenError(`Shot ${body.target} left the edit before the sound landed.`);
@@ -295,7 +363,9 @@ async function runSound(body: SoundBody, sectionId: string, jobId: string) {
       jobs: addUnique(t.jobs, jobId),
     };
   });
-  await previewFor(body.filmId, sectionId);
+  if (await jobCancelled(jobId)) return "cancelled"; // no preview
+  await preview(body.filmId, sectionId);
+  if (await jobCancelled(jobId)) return "cancelled"; // no done
   const note = `Peak at ${peak.toFixed(2)} s · laid at ${placed.at.toFixed(2)} s${placed.clamped ? " (clamped at 0, the peak lands late)" : ""}`;
   await patchJob(jobId, {
     status: "done",
@@ -304,4 +374,5 @@ async function runSound(body: SoundBody, sectionId: string, jobId: string) {
     result: { media, note },
     error: null,
   });
+  return "done";
 }

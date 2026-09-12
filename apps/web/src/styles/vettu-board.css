@@ -478,6 +478,8 @@
   gap: 7px;
   margin-left: 12px;
   background: transparent;
+  /* system sans paints ◇ ◆ at ~19px wide (the reference); the serif fallback shrank them to 12px */
+  font-family: var(--v-fbody);
 }
 .v-sst .g-cut {
   font-size: 20px;
@@ -1039,6 +1041,9 @@ button.v-bd {
   gap: 7px;
   margin-top: 12px;
 }
+.v-castrow {
+  margin-top: 8px;
+}
 .v-fam,
 .v-member {
   padding: 7px 13px;
@@ -1076,8 +1081,8 @@ button.v-bd {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
-  margin-top: 26px;
-  padding: 14px 0 16px;
+  margin-top: 18px;
+  padding: 14px 0 14px;
   border-bottom: 2px solid var(--v-line);
 }
 .v-wtab {
@@ -1109,6 +1114,11 @@ button.v-bd {
   gap: 12px;
   align-items: flex-start;
   margin-top: 20px;
+}
+.v-ccstack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .v-cc {
   margin: 0;

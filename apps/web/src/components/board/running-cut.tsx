@@ -97,7 +97,7 @@ export function RunningCutFold({ cut }: { cut: BoardRunningCut }) {
     <CutFold
       vettu="running-cut"
       numText={cut.lengthText}
-      name="THE RUNNING CUT"
+      name="THE RUNNING CUT · 16:9"
       src={cut.url}
       poster={cut.poster}
       from={cut.from}

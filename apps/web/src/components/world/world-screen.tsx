@@ -32,6 +32,26 @@ function parseAr(ar: string | null): [number, number] {
   return w > 0 && h > 0 ? [w, h] : [7, 3];
 }
 
+/** Slot heights (DESIGN §4.7): tall 280 (portrait + 21:9 wide) · square 117 (two stack = one tall) · 7:3 and the rest 206. */
+function slotHeight(ar: string | null): number {
+  const [w, h] = parseAr(ar);
+  if (w === h) return 117;
+  if (w < h) return 280;
+  return (ar ?? "").replace(/\s/g, "") === "21:9" ? 280 : 206;
+}
+
+/** Consecutive squares stack two to a column, like the reference cast page. */
+function stackSquares(cards: WorldViewCard[]): WorldViewCard[][] {
+  const out: WorldViewCard[][] = [];
+  for (const card of cards) {
+    const last = out[out.length - 1];
+    const square = slotHeight(card.ar) === 117;
+    if (square && last && last.length === 1 && slotHeight(last[0]!.ar) === 117) last.push(card);
+    else out.push([card]);
+  }
+  return out;
+}
+
 function SlotCard({
   card,
   letters,
@@ -45,7 +65,7 @@ function SlotCard({
 }) {
   const [w, h] = parseAr(card.ar);
   const ratio = w / h;
-  const height = ratio < 1 ? 280 : 206;
+  const height = slotHeight(card.ar);
   const width = Math.round(height * ratio);
   const shapeH = 8;
   const shapeW = Math.max(5, Math.min(22, Math.round(shapeH * ratio)));
@@ -57,7 +77,7 @@ function SlotCard({
       : undefined;
 
   return (
-    <figure className={`v-cc${card.todo ? " todo" : ""}`} style={{ width }} data-world-card={card.id}>
+    <figure className={`v-cc${card.todo ? " todo" : ""}${height === 117 ? " sm" : ""}`} style={{ width }} data-world-card={card.id}>
       <div className="v-cc-media" style={{ aspectRatio: `${w} / ${h}` }}>
         {card.img ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -225,15 +245,24 @@ export function WorldScreen() {
         {tab ? (
           tab.cards.length > 0 ? (
             <div className="v-cards">
-              {tab.cards.map((card) => (
-                <SlotCard
-                  key={card.id}
-                  card={card}
-                  letters={world?.letters ?? {}}
-                  memberColour={member?.colour ?? null}
-                  onOpen={setLightbox}
-                />
-              ))}
+              {stackSquares(tab.cards).map((group) => {
+                const slots = group.map((card) => (
+                  <SlotCard
+                    key={card.id}
+                    card={card}
+                    letters={world?.letters ?? {}}
+                    memberColour={member?.colour ?? null}
+                    onOpen={setLightbox}
+                  />
+                ));
+                return group.length > 1 ? (
+                  <div className="v-ccstack" key={group[0]!.id}>
+                    {slots}
+                  </div>
+                ) : (
+                  slots
+                );
+              })}
             </div>
           ) : (
             <p className="v-note">No cards in this tab yet.</p>
