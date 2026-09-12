@@ -18,7 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // `useSingleEndpoint` here — the two settings have to agree.
   // LiveVoiceProvider sits ABOVE the popup so minimising the overlay never ends a LIVE call.
   return (
-    <CopilotKitProvider runtimeUrl="/api/copilotkit">
+    <CopilotKitProvider runtimeUrl="/api/copilotkit" enableInspector={false}>
       <LiveVoiceProvider>{children}</LiveVoiceProvider>
     </CopilotKitProvider>
   );
