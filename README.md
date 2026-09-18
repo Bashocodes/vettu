@@ -1,28 +1,19 @@
-<div align="center">
-
 # VETTU
 
-**வெட்டு — "the cut". An agentic film board for any film.**
-
-*Say the cut. Agents make it.*
-
-</div>
-
-VETTU is a film board with an editor that listens. The board shows your film's sections, cards, clips and cues. You
-type — or say — the cut ("hold S3 of §04 half a second longer", "rename §02 to THE BRIDGE") and agents make it: the
-edit changes, a preview renders, the board shows what moved. Slow work runs in the background. Nothing publishes until
-you click **Approve**; then VETTU renders the final cut, records it in Ambiguous and queues it for your Slack review
-thread, where replies come back as change orders.
-
-Built at AI Tinkerers *Agents, Everywhere* (Hyderabad, 12 Sep 2026) on the
+வெட்டு, "the cut". A film board with an editor that listens. The board shows your film's sections, cards, clips and
+cues. You type or say the cut ("hold S3 of §04 half a second longer") and agents make it: the edit changes, a preview
+renders, the board shows what moved. Nothing publishes until you click Approve. Built in one day at AI Tinkerers
+*Agents, Everywhere*, Hyderabad, 12 Sep 2026, on the
 [CopilotKit agents-everywhere starter kit](https://github.com/CopilotKit/agents-everywhere-starter-kit).
 See [SUBMISSION.md](SUBMISSION.md) for what was inherited and what was built.
 
-## Quickstart (clean clone → sample film)
+## Run it
 
 Node.js 22+ and FFmpeg at `/opt/homebrew/bin/ffmpeg` (macOS Homebrew). Python 3 with Pillow draws words on screen.
 
 ```bash
+git clone https://github.com/Bashocodes/vettu.git
+cd vettu
 npm ci
 cp .env.example .env
 ```
@@ -35,13 +26,21 @@ MODEL=anthropic:claude-opus-5
 ANTHROPIC_API_KEY=your-key
 ```
 
+Then:
+
 ```bash
 npm run dev:web
 ```
 
-Open http://127.0.0.1:3100 — VETTU opens a placeholder film, **MY FIRST FILM**. Rename it, add, reorder, park or remove
-sections, open the chat pill bottom-right and say the cut. `npm run verify` runs typechecks and offline tests with no
-credentials.
+Open http://127.0.0.1:3100. VETTU opens a placeholder film. Open the chat bottom right and say the cut.
+
+```bash
+npm run verify
+```
+
+Typechecks and offline tests. Needs no keys.
+
+The Slack review thread, LIVE voice and film import are optional. See the full README.
 
 ## The two pages
 
@@ -107,4 +106,8 @@ mints a short-lived conversation token at `/api/live-token`; the API key never r
 
 ## License
 
-MIT, as the starter kit. Film media is never part of this repository.
+MIT. Starter kit © 2026 CopilotKit; VETTU additions © 2026 Sharan Ramakrishna. See [LICENSE](LICENSE).
+
+Film media is never part of this repository.
+
+Made by cyberyogi (Sharan Ramakrishna). Everything I make: https://inkoji.com/cyberyogi
