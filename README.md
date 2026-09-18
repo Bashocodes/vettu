@@ -1,5 +1,8 @@
 # VETTU
 
+> Part of the **Director suite**: VETTU · Conductor · Director Open · Reel-HDR.
+> Start at the front door: https://github.com/Bashocodes/director-open
+
 வெட்டு, "the cut". A film board with an editor that listens. The board shows your film's sections, cards, clips and
 cues. You type or say the cut ("hold S3 of §04 half a second longer") and agents make it: the edit changes, a preview
 renders, the board shows what moved. Nothing publishes until you click Approve. Built in one day at AI Tinkerers
